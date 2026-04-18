@@ -1,0 +1,34 @@
+<!-- ════ BOUNDARY SCRIPT BUILDER ════ -->
+<div id="screen-boundary-builder" class="screen nosub">
+<div class="tool-wrap tool-boundary">
+  <button class="b-back" onclick="go('screen-activities')">←</button>
+  <div class="tool-title">Boundary Script Builder</div>
+  <div class="tool-sub">Build a warm, firm sentence for a hard conversation.</div>
+  <div class="tool-panel">
+    <label class="tool-lbl">Who is this for?</label>
+    <select class="tool-input" id="bb-person" onchange="buildBoundaryScript()">
+      <option value="parent">Parent</option>
+      <option value="relative">Auntie / Uncle / Relative</option>
+      <option value="partner">Romantic partner</option>
+      <option value="friend">Friend</option>
+      <option value="inner">Inner critic</option>
+    </select>
+    <label class="tool-lbl">What is the boundary about?</label>
+    <select class="tool-input" id="bb-topic" onchange="buildBoundaryScript()">
+      <option value="privacy">Privacy</option>
+      <option value="time">Time / availability</option>
+      <option value="career">Career or school pressure</option>
+      <option value="marriage">Marriage / dating questions</option>
+      <option value="emotion">Emotional space</option>
+    </select>
+    <label class="tool-lbl">Tone</label>
+    <select class="tool-input" id="bb-tone" onchange="buildBoundaryScript()">
+      <option value="gentle">Gentle</option>
+      <option value="firm">Firm</option>
+      <option value="direct">Direct</option>
+    </select>
+  </div>
+  <div class="script-card" id="bb-output"></div>
+  <button class="tool-btn" onclick="copyBoundaryScript()">Copy Script</button>
+</div>
+</div>

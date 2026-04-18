@@ -1,0 +1,27 @@
+<!-- ════ COMMUNITY ════ -->
+<div id="screen-community" class="screen">
+<div class="hdr hdr-ro">
+  <h1>Community</h1>
+  <p>Anonymous, safe spaces for South Asian stories.</p>
+</div>
+<div class="crise">
+  <div class="crise-ic">💙</div>
+  <div class="crise-tx"><h4>Need immediate support?</h4><p>South Asian-centered crisis line</p></div>
+  <button class="crise-btn" onclick="go('screen-textline')">Text Now</button>
+</div>
+<div class="ctab-row" id="ctab-row">
+  <button class="comm-tab on-r" onclick="switchComm('desi',this,'on-r')">🌸 Desi Daughters</button>
+  <button class="comm-tab" onclick="switchComm('premed',this,'on-t')">📚 Pre-Med</button>
+  <button class="comm-tab" onclick="switchComm('firstgen',this,'on-p')">🌍 First Gen</button>
+  <button class="comm-tab" onclick="switchComm('therapy',this,'on-s')">🧘 Therapy Talk</button>
+</div>
+<div class="compose">
+  <div class="compose-lbl">Share something</div>
+  <textarea class="compose-ta" id="compose-ta" placeholder="What's on your mind? This is a safe space." rows="3"></textarea>
+  <div class="compose-row">
+    <div class="anon-tog" onclick="toggleAnon()"><div class="anon-chk on" id="anon-chk">✓</div><span class="anon-lb">Post anonymously</span></div>
+    <button class="post-submit" onclick="submitPost()">Post</button>
+  </div>
+</div>
+<div class="cfeed" id="cfeed"></div>
+</div>

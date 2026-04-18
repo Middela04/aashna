@@ -1,0 +1,8 @@
+# Ignore local profile persistence
+profile_data.json
+users.json
+sessions.json
+
+# Python cache files
+__pycache__/
+*.py[cod]

@@ -1,0 +1,37 @@
+<!-- ════ DAILY CHECK-IN ════ -->
+<div id="screen-checkin" class="screen nosub">
+<div class="check-wrap">
+  <div class="check-title">Daily Check-In</div>
+  <div class="check-sub">A tiny pause so Aashna can meet you where you are today.</div>
+
+  <div class="check-panel">
+    <div class="tool-lbl">Mood</div>
+    <div class="check-moods" id="check-moods">
+      <button onclick="setCheckMood(this,'Anxious')">😰<span>Anxious</span></button>
+      <button onclick="setCheckMood(this,'Sad')">😔<span>Sad</span></button>
+      <button onclick="setCheckMood(this,'Okay')">😐<span>Okay</span></button>
+      <button onclick="setCheckMood(this,'Good')">🙂<span>Good</span></button>
+      <button onclick="setCheckMood(this,'Great')">😊<span>Great</span></button>
+    </div>
+
+    <label class="tool-lbl">Stress level: <span id="check-stress-label">5</span>/10</label>
+    <input class="check-range" id="check-stress" type="range" min="1" max="10" value="5" oninput="document.getElementById('check-stress-label').textContent=this.value">
+
+    <label class="tool-lbl">What is weighing on you?</label>
+    <textarea class="tool-area" id="check-weight" placeholder="Family, school, identity, grief, relationships, burnout..."></textarea>
+
+    <label class="tool-lbl">What kind of support do you want?</label>
+    <div class="support-grid" id="support-grid">
+      <button onclick="setCheckSupport(this,'calm')">🫁 Calm me</button>
+      <button onclick="setCheckSupport(this,'teach')">📖 Teach me</button>
+      <button onclick="setCheckSupport(this,'vent')">💬 Let me vent</button>
+      <button onclick="setCheckSupport(this,'reflect')">📔 Help me reflect</button>
+    </div>
+  </div>
+
+  <div class="check-actions">
+    <button class="tool-btn" onclick="submitCheckIn()">Get Recommendation</button>
+    <button class="tool-lite" onclick="skipCheckIn()">Skip for now</button>
+  </div>
+</div>
+</div>

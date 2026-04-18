@@ -1,0 +1,17 @@
+<!-- ════ BODY SCAN ════ -->
+<div id="screen-bodyscan" class="screen nosub">
+<div class="bs-wrap">
+  <button class="b-back" style="background:rgba(255,255,255,.14)" onclick="stopBS();go('screen-activities')">←</button>
+  <div class="bs-step-dots" id="bs-dots"></div>
+  <div class="bs-body-part" id="bs-part-ic">🧘</div>
+  <div class="bs-area" id="bs-area">Ready to begin</div>
+  <div class="bs-prompt" id="bs-prompt" style="font-family:'Fraunces',serif;color:#fff;font-size:20px;font-weight:700;text-align:center;line-height:1.4;margin-bottom:10px;min-height:52px">Body Scan Meditation</div>
+  <div class="bs-detail" id="bs-detail" style="color:rgba(255,255,255,.62);font-size:13px;text-align:center;line-height:1.7;margin-bottom:22px;max-width:280px;min-height:60px">Bring gentle, non-judgmental awareness to each part of your body. No need to change anything — just notice.</div>
+  <div class="bs-ring" id="bs-ring">
+    <svg viewBox="0 0 104 104"><circle id="bs-circle" cx="52" cy="52" r="46" stroke-dasharray="289" stroke-dashoffset="289"/></svg>
+    <div class="bs-timer-num" id="bs-timer">—</div>
+  </div>
+  <button class="bs-start" id="bs-start-btn" onclick="startBS()">Begin</button>
+  <button class="bs-next" id="bs-next-btn" onclick="bsNext()">Next →</button>
+</div>
+</div>

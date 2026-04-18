@@ -1,0 +1,17 @@
+<!-- ════ PROGRESSIVE RELAXATION ════ -->
+<div id="screen-prog-relax" class="screen nosub">
+<div class="pr-wrap">
+  <button class="b-back" onclick="stopPR();go('screen-activities')">←</button>
+  <div class="pr-step-dots" id="pr-dots"></div>
+  <div id="pr-body-vis" class="pr-body-vis">🧘</div>
+  <div class="pr-part" id="pr-part">Ready</div>
+  <div class="pr-action" id="pr-action" style="font-family:'Fraunces',serif;color:#fff;font-size:20px;font-weight:700;text-align:center;line-height:1.4;margin-bottom:8px;min-height:58px">Progressive Muscle Relaxation</div>
+  <div class="pr-detail" id="pr-detail" style="color:rgba(255,255,255,.65);font-size:13px;text-align:center;line-height:1.65;margin-bottom:20px;max-width:280px;min-height:60px">Systematically tense and release each muscle group to dissolve physical tension and calm your nervous system.</div>
+  <div class="pr-timer-ring" id="pr-ring">
+    <svg viewBox="0 0 114 114"><circle id="pr-circle" cx="57" cy="57" r="50" stroke-dasharray="314" stroke-dashoffset="314"/></svg>
+    <div style="text-align:center"><div class="pr-timer-num" id="pr-timer">—</div><div class="pr-phase-tag" id="pr-phase-tag"></div></div>
+  </div>
+  <button class="pr-start" id="pr-start-btn" onclick="startPR()">Begin</button>
+  <button class="pr-next" id="pr-next-btn" onclick="prNext()">Next →</button>
+</div>
+</div>

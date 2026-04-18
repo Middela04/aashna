@@ -1,0 +1,22 @@
+<!-- ════ JOURNAL ════ -->
+<div id="screen-journal" class="screen nosub">
+<div class="j-hdr">
+  <button class="back" onclick="go('screen-activities')">←</button>
+  <h1>Journal</h1>
+  <p>A private space to reflect.</p>
+</div>
+<div class="j-body">
+  <div class="j-date" id="j-date"></div>
+  <div class="j-prompt">What are you grateful for today?</div>
+  <textarea class="j-ta" id="jt1" placeholder="One thing, big or small…" rows="3"></textarea>
+  <div class="j-prompt" style="margin-top:11px">Something that challenged you:</div>
+  <textarea class="j-ta" id="jt2" placeholder="How did you handle it?" rows="3"></textarea>
+  <div class="j-prompt" style="margin-top:11px">A kind thing you'll do for yourself today:</div>
+  <textarea class="j-ta" id="jt3" placeholder="Rest counts. A walk counts." rows="2"></textarea>
+  <button class="j-save" onclick="saveJournal()">Save Entry ✓</button>
+</div>
+<div class="pad" style="padding-top:0">
+  <div class="sec">Past Entries</div>
+  <div id="j-list"></div>
+</div>
+</div>

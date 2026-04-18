@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aashna · आशना</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fraunces:opsz,ital,wght@9..144,0,500;9..144,0,700;9..144,1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="static/style.css?v=20260417-14">
+
+</head>
+<body>
+<div id="phone">
+<div class="status">
+  <span id="status-time">9:41</span>
+  <span class="status-xp" id="sxp"></span>
+  <span class="status-dots" onclick="openSettings()" title="Settings">⠿</span>
+</div>
+
+<!-- ════ SCREEN PAGES (loaded from pages/*.html) ════ -->
+<div id="screen-pages"></div>
+
+<!-- ════ NAV ════ -->
+<nav id="nav" class="hidden">
+  <button class="nv" id="nv-home" onclick="go('screen-home')"><span class="nv-ic">🏠</span><span class="nv-lb">Home</span></button>
+  <button class="nv" id="nv-courses" onclick="go('screen-courses')"><span class="nv-ic">📖</span><span class="nv-lb">Learn</span></button>
+  <button class="nv" id="nv-activities" onclick="go('screen-activities')"><span class="nv-ic">🫁</span><span class="nv-lb">Tools</span></button>
+  <button class="nv" id="nv-resources" onclick="go('screen-resources')"><span class="nv-ic">🧭</span><span class="nv-lb">Resources</span></button>
+  <button class="nv" id="nv-profile" onclick="go('screen-profile')"><span class="nv-ic">👤</span><span class="nv-lb">Profile</span></button>
+  <button class="nv" id="nv-community" onclick="go('screen-community')"><span class="nv-ic">💬</span><span class="nv-lb">Community</span></button>
+</nav>
+
+<!-- SETTINGS SHEET -->
+<div class="sheet-overlay" id="settings-overlay" onclick="closeSettingsIfBg(event)">
+<div class="sheet" id="settings-sheet">
+  <div class="sheet-handle"></div>
+  <h3>⚙ Settings</h3>
+  <div class="setting-row">
+    <div class="setting-info"><h4>Unlock All Lessons</h4><p>Skip progression for demo or review</p></div>
+    <div class="toggle" id="unlock-toggle" onclick="toggleUnlockAll()"><div class="toggle-thumb"></div></div>
+  </div>
+  <div class="setting-row">
+    <div class="setting-info"><h4>Daily Reminder</h4><p>Browser notifications (demo)</p></div>
+    <div class="toggle" id="notif-toggle" onclick="toggleSetting('notif')"><div class="toggle-thumb"></div></div>
+  </div>
+  <div class="setting-row">
+    <div class="setting-info"><h4>Provider Code</h4><p>Link your account to a provider</p></div>
+    <div class="setting-tag" id="prov-code-tag">Not linked</div>
+  </div>
+  <div class="setting-row">
+    <div class="setting-info"><h4>Session XP</h4><p>Earned this session</p></div>
+    <div class="setting-tag" id="session-xp-tag">+0 XP</div>
+  </div>
+  <div class="about-block">
+    <p><strong>Aashna (آشنا)</strong> — from Sanskrit, meaning <em>beloved, or friend</em> "Close to someone's heart"<br><br>Aashna is a culturally tailored mental wellness companion for South Asians — not a replacement for therapy, but a trusted space between sessions.<br><br>Built with love for the community. 🌿</p>
+  </div>
+  <div style="margin-top:14px"><button class="btn-out" style="width:100%;margin-bottom:10px" onclick="logout()">Log out</button><button class="btn-out" style="width:100%" onclick="closeSettings()">Close</button></div>
+</div>
+</div>
+
+<!-- PROVIDER SHEET -->
+<div class="sheet-overlay" id="prov-overlay" onclick="closeProvIfBg(event)">
+<div class="sheet" id="prov-sheet">
+  <div class="sheet-handle"></div>
+  <h3>Share with Provider</h3>
+  <p style="font-size:13px;color:var(--br-mid);line-height:1.7;margin-bottom:16px">This summary shows your activity, module progress, and badges earned — giving your provider visibility into your work between sessions.</p>
+  <div id="prov-summary"></div>
+  <div style="height:12px"></div>
+  <button class="btn-te" style="margin-bottom:9px" onclick="copyProvSummary()">Copy Summary Link</button>
+  <button class="btn-out" onclick="document.getElementById('prov-overlay').classList.remove('open')">Close</button>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+</div>
+
+<script src="static/app.js?v=20260417-14"></script>
+</body>
+</html>

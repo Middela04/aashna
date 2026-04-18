@@ -1,0 +1,31 @@
+<!-- ════ BOX BREATHING ════ -->
+<div id="screen-breathbox" class="screen nosub">
+<div class="bwrap bwrap-box">
+  <button class="b-back" onclick="stopBreath('box');go('screen-activities')">←</button>
+  <div class="b-title">Box Breathing</div>
+  <div class="b-sub">Equal 4-count intervals calm your nervous system</div>
+  <div class="b-phase" id="bph-box">Ready</div>
+  <div class="b-count" id="bct-box">&nbsp;</div>
+  <div class="box-breath-vis" id="box-vis" data-phase="ready">
+    <div class="box-edge box-edge-top">Hold</div>
+    <div class="box-edge box-edge-right">Out</div>
+    <div class="box-edge box-edge-bottom">Hold</div>
+    <div class="box-edge box-edge-left">In</div>
+    <div class="box-track">
+      <div class="box-corner box-corner-tl"></div>
+      <div class="box-corner box-corner-tr"></div>
+      <div class="box-corner box-corner-br"></div>
+      <div class="box-corner box-corner-bl"></div>
+      <div class="box-dot" id="box-dot"></div>
+    </div>
+  </div>
+  <button class="b-start" id="bbt-box" onclick="toggleBreath('box')">Begin</button>
+  <div class="b-grid">
+    <div class="bx"><div class="bxt">4s</div><div class="bxl">Breathe In</div></div>
+    <div class="bx"><div class="bxt">4s</div><div class="bxl">Hold</div></div>
+    <div class="bx"><div class="bxt">4s</div><div class="bxl">Breathe Out</div></div>
+    <div class="bx"><div class="bxt">4s</div><div class="bxl">Hold</div></div>
+  </div>
+  <div class="b-cycles" id="bcyc-box"></div>
+</div>
+</div>

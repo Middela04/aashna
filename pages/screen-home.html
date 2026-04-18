@@ -1,0 +1,50 @@
+<!-- ════ HOME ════ -->
+<div id="screen-home" class="screen">
+<div class="home-hdr">
+  <div class="home-gr" id="home-gr">Namaste ✨</div>
+  <div class="home-title">Your Space</div>
+  <div class="home-pills">
+    <div class="pill" id="streak-pill">🔥 <span id="streak-n">0</span>-day streak</div>
+    <div class="pill" id="xp-pill">⭐ <span id="xp-n">0</span> XP</div>
+    <div class="pill" id="level-pill">💎 Level <span id="lvl-n">1</span></div>
+  </div>
+</div>
+<div class="pad" style="padding-bottom:0">
+  <div class="sec">How are you feeling?</div>
+  <button class="btn-te" style="margin-bottom:14px" onclick="go('screen-checkin')">Open Daily Check-In</button>
+  <div class="mood-row" id="mood-row">
+    <button class="mood-btn" onclick="selectMood(this,'😰','Anxious')">😰<span class="mood-label">Anxious</span></button>
+    <button class="mood-btn" onclick="selectMood(this,'😔','Sad')">😔<span class="mood-label">Sad</span></button>
+    <button class="mood-btn" onclick="selectMood(this,'😐','Okay')">😐<span class="mood-label">Okay</span></button>
+    <button class="mood-btn" onclick="selectMood(this,'🙂','Good')">🙂<span class="mood-label">Good</span></button>
+    <button class="mood-btn" onclick="selectMood(this,'😊','Great')">😊<span class="mood-label">Great</span></button>
+  </div>
+</div>
+<div class="pad" style="padding-top:12px">
+  <div class="cont-card" id="home-continue" onclick="goMod('bounds')">
+    <div style="font-size:34px;flex-shrink:0">🌿</div>
+    <div style="flex:1">
+      <div style="font-size:14px;font-weight:900;color:var(--pu)">Continue: Maintaining Boundaries</div>
+      <div style="font-size:11px;color:var(--br-mid);margin-top:2px">Next: Lesson 3 · At Family Gatherings</div>
+      <div class="bw" style="margin-top:7px"><div class="bf" style="width:33%;background:var(--pu)"></div></div>
+    </div>
+    <button style="margin-left:7px;background:var(--pu);color:#fff;border:none;border-radius:11px;padding:8px 13px;font-size:12px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;flex-shrink:0">Go</button>
+  </div>
+  <div class="sec">Quick Tools</div>
+  <div class="strip-row" style="margin-bottom:20px">
+    <div class="strip-btn" onclick="go('screen-breathbox')"><div class="strip-c" style="background:var(--te-lt)">🫁</div><span class="strip-lb">Box Breathing</span></div>
+    <div class="strip-btn" onclick="go('screen-senses')"><div class="strip-c" style="background:var(--pu-lt)">👁️</div><span class="strip-lb">5 Senses</span></div>
+    <div class="strip-btn" onclick="go('screen-affirmations')"><div class="strip-c" style="background:var(--go-lt)">✨</div><span class="strip-lb">Affirmations</span></div>
+    <div class="strip-btn" onclick="go('screen-journal')"><div class="strip-c" style="background:var(--gn-lt)">📔</div><span class="strip-lb">Journal</span></div>
+    <div class="strip-btn" onclick="go('screen-textline')"><div class="strip-c" style="background:var(--ro-lt)">💬</div><span class="strip-lb">Text Line</span></div>
+    <div class="strip-btn" onclick="go('screen-boundary-builder')"><div class="strip-c" style="background:var(--sf-lt)">🛡️</div><span class="strip-lb">Boundary Script</span></div>
+    <div class="strip-btn" onclick="go('screen-toolkit')"><div class="strip-c" style="background:var(--te-lt)">🧰</div><span class="strip-lb">Toolkit</span></div>
+    <div class="strip-btn" onclick="go('screen-therapy-stigma')"><div class="strip-c" style="background:var(--pu-lt)">🛋️</div><span class="strip-lb">Therapy Stigma</span></div>
+  </div>
+  <div class="sec">Today's Affirmation</div>
+  <div class="wcard" style="background:var(--go-lt);border-color:var(--go-mid);margin-bottom:6px">
+    <div style="font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--go);margin-bottom:7px">Daily Wisdom</div>
+    <div id="home-aff" style="font-family:'Fraunces',serif;font-size:15px;font-style:italic;color:var(--br);line-height:1.7;font-weight:600"></div>
+  </div>
+</div>
+</div>
