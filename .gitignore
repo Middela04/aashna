@@ -2,6 +2,11 @@
 profile_data.json
 users.json
 sessions.json
+aashna.db
+cookies.txt
+.env
+.env.*
+.venv/
 
 # Python cache files
 __pycache__/
