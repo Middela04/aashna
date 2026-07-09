@@ -9,7 +9,7 @@ async function loadScreenPages(){
   if(!container) return;
   for(const id of screenIds){
     try {
-      const res = await fetch('pages/' + id + '.html?v=20260417-14');
+      const res = await fetch('pages/' + id + '.html?v=20260709-03');
       if(!res.ok){ console.error('Failed to load', id, res.status); continue; }
       const html = await res.text();
       const wrapper = document.createElement('div');
@@ -48,13 +48,39 @@ const S = {
   snsStep:0,snsDone:false,
   // settings
   settings:{notif:false},
-  toolkit:{phrase:'',person:''},
+  toolkit:{phrase:'',person:'',phrases:[],people:[]},
   checkins:[],checkinDraft:{mood:'Okay',support:'calm'},
   // initial module progress
   modProgress:{bounds:3,bicul:1,family:0},
   // XP from initial progress
   initialised:false,
 };
+const KIT_EDIT={phrase:-1,person:-1};
+
+function escapeHtml(str=''){
+  return String(str)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#39;');
+}
+
+function normalizeToolkit(raw){
+  const toolkit=raw && typeof raw==='object' ? raw : {};
+  const phrases=Array.isArray(toolkit.phrases) ? toolkit.phrases.filter(Boolean).map(v=>String(v).trim()).filter(Boolean) : [];
+  const people=Array.isArray(toolkit.people) ? toolkit.people.filter(Boolean).map(v=>String(v).trim()).filter(Boolean) : [];
+  const legacyPhrase=typeof toolkit.phrase==='string' ? toolkit.phrase.trim() : '';
+  const legacyPerson=typeof toolkit.person==='string' ? toolkit.person.trim() : '';
+  if(legacyPhrase && !phrases.includes(legacyPhrase))phrases.unshift(legacyPhrase);
+  if(legacyPerson && !people.includes(legacyPerson))people.unshift(legacyPerson);
+  return {
+    phrase:phrases[0] || '',
+    person:people[0] || '',
+    phrases,
+    people
+  };
+}
 
 // ══════════════════════════════════════
 // DATA — AFFIRMATIONS
@@ -675,7 +701,7 @@ async function loadProfileFromServer(){
     S.likedPosts = new Set(Array.isArray(data.likedPosts) ? data.likedPosts : []);
     S.activitiesDone = new Set(Array.isArray(data.activitiesDone) ? data.activitiesDone : []);
     S.settings = data.settings || S.settings;
-    S.toolkit = data.toolkit || S.toolkit;
+    S.toolkit = normalizeToolkit(data.toolkit);
     S.checkins = Array.isArray(data.checkins) ? data.checkins : S.checkins;
     S.modProgress = data.modProgress || S.modProgress;
     S.initialised = data.initialised ?? false;
@@ -1677,30 +1703,147 @@ function copyBoundaryScript(){
 }
 
 function initToolkit(){
+  S.toolkit=normalizeToolkit(S.toolkit);
+  KIT_EDIT.phrase=-1;
+  KIT_EDIT.person=-1;
   const phrase=document.getElementById('kit-phrase');
   const person=document.getElementById('kit-person');
-  if(phrase)phrase.value=S.toolkit?.phrase || '';
-  if(person)person.value=S.toolkit?.person || '';
+  if(phrase)phrase.value='';
+  if(person)person.value='';
+  updateToolkitButtons();
+  renderToolkitItems();
   renderToolkitSummary();
 }
 
-function saveToolkit(){
-  S.toolkit={
-    phrase:document.getElementById('kit-phrase')?.value.trim() || '',
-    person:document.getElementById('kit-person')?.value.trim() || ''
-  };
+function updateToolkitButtons(){
+  const phraseBtn=document.getElementById('kit-phrase-btn');
+  const personBtn=document.getElementById('kit-person-btn');
+  if(phraseBtn)phraseBtn.textContent=KIT_EDIT.phrase>=0?'Update Phrase':'Save Phrase';
+  if(personBtn)personBtn.textContent=KIT_EDIT.person>=0?'Update Support':'Save Support';
+}
+
+function syncToolkitLegacyFields(){
+  S.toolkit.phrase=S.toolkit.phrases[0] || '';
+  S.toolkit.person=S.toolkit.people[0] || '';
+}
+
+function saveToolkitPhrase(){
+  const input=document.getElementById('kit-phrase');
+  const value=input?.value.trim() || '';
+  if(!value){toast('Add a phrase first');return;}
+  S.toolkit=normalizeToolkit(S.toolkit);
+  if(KIT_EDIT.phrase>=0)S.toolkit.phrases[KIT_EDIT.phrase]=value;
+  else S.toolkit.phrases.unshift(value);
+  S.toolkit.phrases=[...new Set(S.toolkit.phrases)];
+  KIT_EDIT.phrase=-1;
+  if(input)input.value='';
+  finishToolkitSave('Phrase saved');
+}
+
+function saveToolkitPerson(){
+  const input=document.getElementById('kit-person');
+  const value=input?.value.trim() || '';
+  if(!value){toast('Add a support first');return;}
+  S.toolkit=normalizeToolkit(S.toolkit);
+  if(KIT_EDIT.person>=0)S.toolkit.people[KIT_EDIT.person]=value;
+  else S.toolkit.people.unshift(value);
+  S.toolkit.people=[...new Set(S.toolkit.people)];
+  KIT_EDIT.person=-1;
+  if(input)input.value='';
+  finishToolkitSave('Support saved');
+}
+
+function clearToolkitInputs(){
+  const phrase=document.getElementById('kit-phrase');
+  const person=document.getElementById('kit-person');
+  if(phrase)phrase.value='';
+  if(person)person.value='';
+  KIT_EDIT.phrase=-1;
+  KIT_EDIT.person=-1;
+  updateToolkitButtons();
+}
+
+function finishToolkitSave(message){
+  syncToolkitLegacyFields();
   S.activitiesDone.add('toolkit');
+  updateToolkitButtons();
+  renderToolkitItems();
   renderToolkitSummary();
-  toast('Toolkit saved');
+  toast(message);
   saveProfileToServer();
+}
+
+function renderToolkitItems(){
+  const el=document.getElementById('kit-items');
+  if(!el)return;
+  S.toolkit=normalizeToolkit(S.toolkit);
+  const phraseItems=S.toolkit.phrases.map((phrase,i)=>`
+    <div class="kit-item">
+      <div class="kit-item-top">
+        <span class="kit-tag">Phrase</span>
+      </div>
+      <div class="kit-item-text">${escapeHtml(phrase)}</div>
+      <div class="kit-actions">
+        <button class="kit-action" onclick="editToolkitPhrase(${i})">Edit</button>
+        <button class="kit-action danger" onclick="deleteToolkitPhrase(${i})">Remove</button>
+      </div>
+    </div>`).join('');
+  const personItems=S.toolkit.people.map((person,i)=>`
+    <div class="kit-item">
+      <div class="kit-item-top">
+        <span class="kit-tag">Support</span>
+      </div>
+      <div class="kit-item-text">${escapeHtml(person)}</div>
+      <div class="kit-actions">
+        <button class="kit-action" onclick="editToolkitPerson(${i})">Edit</button>
+        <button class="kit-action danger" onclick="deleteToolkitPerson(${i})">Remove</button>
+      </div>
+    </div>`).join('');
+  const html=phraseItems + personItems;
+  el.innerHTML=html || '<div class="kit-empty">Nothing saved yet. Add a phrase or a safe person above to build your toolkit.</div>';
+}
+
+function editToolkitPhrase(i){
+  const phrase=S.toolkit?.phrases?.[i];
+  const input=document.getElementById('kit-phrase');
+  if(!phrase||!input)return;
+  input.value=phrase;
+  KIT_EDIT.phrase=i;
+  updateToolkitButtons();
+}
+
+function editToolkitPerson(i){
+  const person=S.toolkit?.people?.[i];
+  const input=document.getElementById('kit-person');
+  if(!person||!input)return;
+  input.value=person;
+  KIT_EDIT.person=i;
+  updateToolkitButtons();
+}
+
+function deleteToolkitPhrase(i){
+  if(!S.toolkit?.phrases?.[i])return;
+  S.toolkit.phrases.splice(i,1);
+  if(KIT_EDIT.phrase===i)KIT_EDIT.phrase=-1;
+  finishToolkitSave('Phrase removed');
+}
+
+function deleteToolkitPerson(i){
+  if(!S.toolkit?.people?.[i])return;
+  S.toolkit.people.splice(i,1);
+  if(KIT_EDIT.person===i)KIT_EDIT.person=-1;
+  finishToolkitSave('Support removed');
 }
 
 function renderToolkitSummary(){
   const el=document.getElementById('kit-summary');
   if(!el)return;
-  const phrase=S.toolkit?.phrase || 'No phrase saved yet.';
-  const person=S.toolkit?.person || 'No safe person saved yet.';
-  el.innerHTML=`<strong>Saved Toolkit</strong><br><br>Phrase: ${phrase}<br><br>Safe person: ${person}`;
+  S.toolkit=normalizeToolkit(S.toolkit);
+  const phrase=S.toolkit.phrases[0] || 'No phrase saved yet.';
+  const person=S.toolkit.people[0] || 'No safe person saved yet.';
+  el.innerHTML=`<strong>Saved Toolkit</strong>
+    <div class="kit-summary-line">Go-to phrase: ${escapeHtml(phrase)}</div>
+    <div class="kit-summary-line">Safe support: ${escapeHtml(person)}</div>`;
 }
 
 // ══════════════════════════════════════
@@ -1893,9 +2036,15 @@ function toggleSetting(key){
 let toastTimer=null;
 function toast(msg){
   const el=document.getElementById('toast');
-  el.textContent=msg;el.classList.add('show');
+  if(!el)return;
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
+  el.classList.remove('show');
+  el.textContent=msg;
+  void el.offsetWidth;
+  el.classList.add('show');
+  toastTimer=setTimeout(()=>{
+    el.classList.remove('show');
+  },2400);
 }
 
 function updateStatusTime(){

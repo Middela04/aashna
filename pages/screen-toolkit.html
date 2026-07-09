@@ -13,9 +13,15 @@
   <div class="tool-panel">
     <label class="tool-lbl">My go-to coping phrase</label>
     <textarea class="tool-area" id="kit-phrase" placeholder="Example: I can pause before I respond."></textarea>
+    <button class="tool-btn tool-btn-lite" id="kit-phrase-btn" onclick="saveToolkitPhrase()">Save Phrase</button>
     <label class="tool-lbl">Someone safe I can reach out to</label>
     <input class="tool-input" id="kit-person" placeholder="Name or initials">
-    <button class="tool-btn" onclick="saveToolkit()">Save Toolkit</button>
+    <button class="tool-btn tool-btn-lite" id="kit-person-btn" onclick="saveToolkitPerson()">Save Support</button>
+    <button class="tool-btn" onclick="clearToolkitInputs()">Clear Inputs</button>
+  </div>
+  <div class="tool-panel">
+    <label class="tool-lbl">Saved supports</label>
+    <div id="kit-items"></div>
   </div>
   <div class="script-card" id="kit-summary"></div>
 </div>
