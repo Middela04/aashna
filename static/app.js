@@ -1,6 +1,6 @@
 async function loadScreenPages(){
   const screenIds = [
-    'screen-landing','screen-home','screen-checkin','screen-courses','screen-module','screen-lesson','screen-scenario',
+    'screen-landing','screen-auth','screen-home','screen-checkin','screen-courses','screen-module','screen-lesson','screen-scenario',
     'screen-activities','screen-breathbox','screen-breath478','screen-prog-relax','screen-bodyscan','screen-senses',
     'screen-affirmations','screen-journal','screen-boundary-builder','screen-toolkit','screen-therapy-stigma',
     'screen-resources','screen-profile','screen-textline'
@@ -9,7 +9,7 @@ async function loadScreenPages(){
   if(!container) return;
   for(const id of screenIds){
     try {
-      const res = await fetch('pages/' + id + '.html?v=20260709-06');
+      const res = await fetch('pages/' + id + '.html?v=20260709-07');
       if(!res.ok){ console.error('Failed to load', id, res.status); continue; }
       const html = await res.text();
       const wrapper = document.createElement('div');
