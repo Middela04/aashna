@@ -6,6 +6,7 @@ aashna.db
 cookies.txt
 .env
 .env.*
+!.env.example
 .venv/
 
 # Python cache files

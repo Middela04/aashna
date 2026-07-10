@@ -3,13 +3,13 @@ async function loadScreenPages(){
     'screen-landing','screen-home','screen-checkin','screen-courses','screen-module','screen-lesson','screen-scenario',
     'screen-activities','screen-breathbox','screen-breath478','screen-prog-relax','screen-bodyscan','screen-senses',
     'screen-affirmations','screen-journal','screen-boundary-builder','screen-toolkit','screen-therapy-stigma',
-    'screen-resources','screen-profile','screen-community','screen-textline'
+    'screen-resources','screen-profile','screen-textline'
   ];
   const container = document.getElementById('screen-pages');
   if(!container) return;
   for(const id of screenIds){
     try {
-      const res = await fetch('pages/' + id + '.html?v=20260417-14');
+      const res = await fetch('pages/' + id + '.html?v=20260709-06');
       if(!res.ok){ console.error('Failed to load', id, res.status); continue; }
       const html = await res.text();
       const wrapper = document.createElement('div');
@@ -25,7 +25,7 @@ async function loadScreenPages(){
 const S = {
   name:'',email:'',xp:0,sessionXp:0,streak:0,totalLessons:0,level:1,avi:'🌸',
   authenticated:false,
-  moodDone:false,unlockAll:false,anonPost:true,
+  moodDone:false,unlockAll:false,
   // lesson completion: 'modKey_lessonIdx' -> true
   done:{},
   // which activity screens have been visited this session
@@ -34,8 +34,6 @@ const S = {
   journal:[],
   // chat
   chat:[],chatBusy:false,
-  // community
-  communityKey:'desi',communityPosts:{},likedPosts:new Set(),
   // affirmations
   affIdx:0,affCat:'Identity',affLoved:new Set(),
   // breathing
@@ -48,13 +46,40 @@ const S = {
   snsStep:0,snsDone:false,
   // settings
   settings:{notif:false},
-  toolkit:{phrase:'',person:''},
+  toolkit:{phrase:'',person:'',phrases:[],people:[]},
+  appConfig:{googleEnabled:false,googleClientId:''},
   checkins:[],checkinDraft:{mood:'Okay',support:'calm'},
   // initial module progress
   modProgress:{bounds:3,bicul:1,family:0},
   // XP from initial progress
   initialised:false,
 };
+const KIT_EDIT={phrase:-1,person:-1};
+
+function escapeHtml(str=''){
+  return String(str)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#39;');
+}
+
+function normalizeToolkit(raw){
+  const toolkit=raw && typeof raw==='object' ? raw : {};
+  const phrases=Array.isArray(toolkit.phrases) ? toolkit.phrases.filter(Boolean).map(v=>String(v).trim()).filter(Boolean) : [];
+  const people=Array.isArray(toolkit.people) ? toolkit.people.filter(Boolean).map(v=>String(v).trim()).filter(Boolean) : [];
+  const legacyPhrase=typeof toolkit.phrase==='string' ? toolkit.phrase.trim() : '';
+  const legacyPerson=typeof toolkit.person==='string' ? toolkit.person.trim() : '';
+  if(legacyPhrase && !phrases.includes(legacyPhrase))phrases.unshift(legacyPhrase);
+  if(legacyPerson && !people.includes(legacyPerson))people.unshift(legacyPerson);
+  return {
+    phrase:phrases[0] || '',
+    person:people[0] || '',
+    phrases,
+    people
+  };
+}
 
 // ══════════════════════════════════════
 // DATA — AFFIRMATIONS
@@ -205,7 +230,7 @@ const SC = {
     rs:[
       {em:'😶',tx:'Push the thought down and study harder without telling anyone.',type:'mid',xp:10,tt:'You pushed through — at a cost',ex:'White-knuckling through difficulty works until it doesn\'t. Isolation + shame is a reliable recipe for burnout. Even one trusted person knowing can change the weight of it entirely.'},
       {em:'🌿',tx:'Challenge the thought: "One test doesn\'t define my intelligence. What went wrong, and what\'s my plan?"',type:'good',xp:30,tt:'Cognitive reframing',ex:'You\'re not denying the difficulty — you\'re refusing to let one data point write your whole story. The exam is a skill test. Skills can be built. You\'re still in the process.'},
-      {em:'💬',tx:'Reach out to someone in the Aashna community who understands this pressure.',type:'mid',xp:20,tt:'You reached out — that\'s strength',ex:'Sharing your struggle with a peer who gets South Asian academic pressure is genuinely therapeutic. You\'re not alone in this.'},
+      {em:'💬',tx:'Reach out to someone you trust who understands this pressure.',type:'mid',xp:20,tt:'You reached out — that\'s strength',ex:'Sharing your struggle with someone who understands South Asian academic pressure can be genuinely grounding. You do not have to hold it alone.'},
     ]
   },
   s_f4:{mod:'family',lbl:'Lesson 4 · Hiding Your Struggles',spNm:'A trusted friend',spRl:'noticing something is off',spAv:'👩🏽',
@@ -510,7 +535,6 @@ const BADGES = [
   {id:'breathwork',ic:'🫁',nm:'Breathwork',cond:()=>S.activitiesDone.has('box')||S.activitiesDone.has('478')},
   {id:'grounded',ic:'🌿',nm:'Grounded',cond:()=>S.activitiesDone.has('senses')},
   {id:'journaler',ic:'📔',nm:'Journaler',cond:()=>S.journal.length>=3},
-  {id:'community',ic:'💬',nm:'Community Voice',cond:()=>S.activitiesDone.has('community')},
   {id:'affirm',ic:'✨',nm:'Affirmation',cond:()=>S.affLoved.size>=3},
   {id:'boundaries-done',ic:'🌺',nm:'Boundary Keeper',cond:()=>modDoneCount('bounds')>=6},
   {id:'bicul-done',ic:'🌍',nm:'Bridge Builder',cond:()=>modDoneCount('bicul')>=6},
@@ -583,7 +607,7 @@ const BOT = [
   {p:/anxious|anxiety|worried|so stressed|stress/i,t:"Anxiety is your nervous system trying to protect you — even when it's not helping. You're not broken for feeling this. Can you tell me more about what's going on? Sometimes just naming it shifts something."},
   {p:/family|parents|mom|dad|amma|papa|mother|father|expectation|pressure/i,t:"Family dynamics carry so much weight, especially in South Asian households. The gap between who your family wants you to be and who you know yourself to be can feel impossible to bridge. You're not alone in that. What's happening right now?"},
   {p:/school|grade|exam|fail|gpa|college|med school|mcat|study|academic/i,t:"Academic pressure in South Asian families can be genuinely crushing — the stakes feel personal AND familial all at once. Your grades are one part of you, not the whole story. What's coming up for you?"},
-  {p:/lonely|alone|isolated|no one understands|nobody/i,t:"Feeling unseen — especially surrounded by people who don\'t fully understand your experience — is its own kind of pain. The community spaces in Aashna are full of people who genuinely get it. But right now, what does 'alone' feel like for you today?"},
+  {p:/lonely|alone|isolated|no one understands|nobody/i,t:"Feeling unseen — especially surrounded by people who don\'t fully understand your experience — is its own kind of pain. You deserve support that feels culturally safe and real. What does 'alone' feel like for you today?"},
   {p:/sad|cry|crying|depress|empty|numb|hopeless/i,t:"Thank you for trusting me with that. If these feelings have been around for a while, please consider speaking with a mental health professional. You deserve more than coping tools — you deserve real, sustained support. Have you been able to talk to anyone about this?"},
   {p:/angry|frustrated|rage|resentful|so mad/i,t:"Anger often signals that something important was crossed — a boundary, a value, a need. In many South Asian spaces, there\'s very little room for anger, especially from women. Your anger is valid information. What\'s underneath it for you?"},
   {p:/identity|who am i|belong|where do i fit|both worlds/i,t:"The bicultural identity question is one of the deepest there is. That friction is real. The Biculturalism & Identity module explores exactly this — but tell me more about where you are right now."},
@@ -597,14 +621,14 @@ const BOT = [
 // ══════════════════════════════════════
 const NAV_IDS = {
   'screen-home':'nv-home','screen-checkin':'nv-home','screen-courses':'nv-courses','screen-activities':'nv-activities',
-  'screen-resources':'nv-resources','screen-profile':'nv-profile','screen-community':'nv-community',
+  'screen-resources':'nv-resources','screen-profile':'nv-profile',
   'screen-module':'nv-courses','screen-lesson':'nv-courses','screen-scenario':'nv-courses',
   'screen-breathbox':'nv-activities','screen-breath478':'nv-activities','screen-prog-relax':'nv-activities',
   'screen-bodyscan':'nv-activities','screen-senses':'nv-activities','screen-affirmations':'nv-activities',
   'screen-journal':'nv-activities','screen-boundary-builder':'nv-activities','screen-toolkit':'nv-activities',
   'screen-therapy-stigma':'nv-activities','screen-textline':'nv-activities',
 };
-const NAV_SCREENS = new Set(['screen-home','screen-courses','screen-activities','screen-resources','screen-profile','screen-community']);
+const NAV_SCREENS = new Set(['screen-home','screen-courses','screen-activities','screen-resources','screen-profile']);
 const CURRENT_MOD = {key:null};
 
 function go(id){
@@ -624,7 +648,6 @@ function go(id){
   if(id==='screen-journal')initJournal();
   if(id==='screen-boundary-builder')buildBoundaryScript();
   if(id==='screen-toolkit')initToolkit();
-  if(id==='screen-community')renderFeed(S.communityKey);
   if(id==='screen-textline')initChat();
   if(id==='screen-activities'){const el=document.getElementById('act-aff');if(el)el.textContent=AFFS[S.affIdx].t;}
   updateHUD();
@@ -664,18 +687,14 @@ async function loadProfileFromServer(){
     S.avi = data.avi || S.avi;
     S.moodDone = data.moodDone ?? S.moodDone;
     S.unlockAll = data.unlockAll ?? S.unlockAll;
-    S.anonPost = data.anonPost ?? S.anonPost;
     S.done = data.done || S.done;
     S.journal = Array.isArray(data.journal) ? data.journal : S.journal;
-    S.communityPosts = data.communityPosts || JSON.parse(JSON.stringify(COMM_POSTS));
-    S.communityKey = data.communityKey || S.communityKey;
     S.affIdx = data.affIdx ?? S.affIdx;
     S.affCat = data.affCat || S.affCat;
     S.affLoved = new Set(Array.isArray(data.affLoved) ? data.affLoved : []);
-    S.likedPosts = new Set(Array.isArray(data.likedPosts) ? data.likedPosts : []);
     S.activitiesDone = new Set(Array.isArray(data.activitiesDone) ? data.activitiesDone : []);
     S.settings = data.settings || S.settings;
-    S.toolkit = data.toolkit || S.toolkit;
+    S.toolkit = normalizeToolkit(data.toolkit);
     S.checkins = Array.isArray(data.checkins) ? data.checkins : S.checkins;
     S.modProgress = data.modProgress || S.modProgress;
     S.initialised = data.initialised ?? false;
@@ -683,10 +702,12 @@ async function loadProfileFromServer(){
     document.getElementById('home-gr').textContent = 'Namaste, '+S.name+' ✨';
     document.getElementById('home-aff').textContent = AFFS[S.affIdx].t;
     document.getElementById('act-aff').textContent = AFFS[S.affIdx].t;
-    const nameEl = document.getElementById('name-in');
+    const nameEl = document.getElementById('landing-name');
     if(nameEl) nameEl.value = S.name;
-    const emailEl = document.getElementById('email-in');
-    if(emailEl) emailEl.value = S.email;
+    const authEmailEl = document.getElementById('auth-email');
+    if(authEmailEl) authEmailEl.value = S.email;
+    const authNameEl = document.getElementById('auth-name');
+    if(authNameEl && !authNameEl.value) authNameEl.value = S.name;
     checkBadges();
     if(S.initialised){
       routeAfterLogin();
@@ -711,16 +732,12 @@ async function saveProfileToServer(){
       avi: S.avi,
       moodDone: S.moodDone,
       unlockAll: S.unlockAll,
-      anonPost: S.anonPost,
       done: S.done,
       journal: S.journal,
-      communityKey: S.communityKey,
       affIdx: S.affIdx,
       affCat: S.affCat,
       affLoved: Array.from(S.affLoved),
-      likedPosts: Array.from(S.likedPosts),
       activitiesDone: Array.from(S.activitiesDone),
-      communityPosts: S.communityPosts,
       settings: S.settings,
       toolkit: S.toolkit,
       checkins: S.checkins,
@@ -740,7 +757,7 @@ async function saveProfileToServer(){
 
 function showAuthScreen(message='', isError=false){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('screen-landing').classList.add('active');
+  document.getElementById('screen-auth').classList.add('active');
   document.getElementById('nav').classList.add('hidden');
   const msg = document.getElementById('auth-msg');
   if(msg){
@@ -754,26 +771,78 @@ function displayAuthMessage(message,isError=false){
   if(msg){msg.textContent=message;msg.style.color=isError? '#C03030':'#1A7A6B';}
 }
 
-async function demoLogin(email){
-  const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:'demo'})});
-  if(!res.ok){
-    const body=await res.json().catch(()=>({}));
-    throw new Error(body.detail||body.error||res.statusText||'Login failed');
-  }
-  S.email=email;
-  S.authenticated=true;
+function displayLandingMessage(message,isError=false){
+  const msg=document.getElementById('landing-msg');
+  if(msg){msg.textContent=message;msg.style.color=isError? '#C03030':'#1A7A6B';}
 }
 
-function demoEmailForName(name){
-  const slug=name.toLowerCase().replace(/[^a-z0-9]+/g,'.').replace(/^\.+|\.+$/g,'') || 'guest';
-  return slug+'@demo.local';
+async function loadAppConfig(){
+  try{
+    const res=await fetch('/api/config');
+    if(!res.ok)return;
+    const data=await res.json();
+    S.appConfig={
+      googleEnabled:!!data.googleEnabled,
+      googleClientId:data.googleClientId || ''
+    };
+  } catch(err){
+    console.warn('Config load failed', err);
+  }
+}
+
+function updateGoogleAuthUI(){
+  const wrap=document.getElementById('google-auth-wrap');
+  const fallback=document.getElementById('google-auth-fallback');
+  if(!fallback)return;
+  if(S.appConfig.googleEnabled && window.google?.accounts?.id){
+    if(wrap)wrap.style.display='block';
+    fallback.style.display='none';
+  } else {
+    if(wrap)wrap.style.display='none';
+    fallback.style.display='block';
+    fallback.textContent=S.appConfig.googleEnabled ? 'Continue with Google' : 'Google sign-in unavailable';
+    fallback.disabled=!S.appConfig.googleEnabled;
+  }
+}
+
+function initGoogleAuth(){
+  updateGoogleAuthUI();
+  const target=document.getElementById('google-signin-button');
+  if(!S.appConfig.googleEnabled || !target)return;
+  if(!window.google?.accounts?.id){
+    window.setTimeout(initGoogleAuth,500);
+    return;
+  }
+  target.innerHTML='';
+  updateGoogleAuthUI();
+  window.google.accounts.id.initialize({
+    client_id:S.appConfig.googleClientId,
+    callback:handleGoogleCredentialResponse
+  });
+  window.google.accounts.id.renderButton(target,{
+    theme:'outline',
+    size:'large',
+    text:'continue_with',
+    shape:'pill',
+    width:280
+  });
 }
 
 async function loginEmail(){
-  const email=(document.getElementById('auth-email')||document.getElementById('email-in')).value.trim();
+  const email=document.getElementById('auth-email')?.value.trim() || '';
+  const password=document.getElementById('auth-password')?.value || '';
   if(!email){displayAuthMessage('Enter an email',true);return;}
+  if(!password){displayAuthMessage('Enter your password',true);return;}
   try {
-    await demoLogin(email);
+    const res=await fetch('/api/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,password})
+    });
+    const body=await res.json().catch(()=>({}));
+    if(!res.ok){displayAuthMessage(body.detail||body.error||'Login failed',true);return;}
+    S.email=body.email || email.toLowerCase();
+    S.authenticated=true;
     displayAuthMessage('Logged in successfully');
     await loadProfileFromServer();
   } catch(err){
@@ -782,16 +851,57 @@ async function loginEmail(){
 }
 
 async function registerEmail(){
-  return loginEmail();
+  const email=document.getElementById('auth-email')?.value.trim() || '';
+  const password=document.getElementById('auth-password')?.value || '';
+  const name=document.getElementById('auth-name')?.value.trim() || '';
+  if(!email){displayAuthMessage('Enter an email',true);return;}
+  if(!password){displayAuthMessage('Create a password',true);return;}
+  try {
+    const res=await fetch('/api/register',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,password,name})
+    });
+    const body=await res.json().catch(()=>({}));
+    if(!res.ok){displayAuthMessage(body.detail||body.error||'Could not create account',true);return;}
+    S.email=body.email || email.toLowerCase();
+    S.name=body.name || name;
+    S.authenticated=true;
+    displayAuthMessage('Account created');
+    await loadProfileFromServer();
+  } catch(err){
+    displayAuthMessage(err.message||'Could not create account',true);
+  }
 }
 
 async function loginWithGoogle(){
-  const email=prompt('Enter your Google email to continue (demo)');
-  if(!email) return;
+  if(!S.appConfig.googleEnabled){
+    displayAuthMessage('Google sign-in is not configured yet',true);
+    return;
+  }
+  if(window.google?.accounts?.id){
+    window.google.accounts.id.prompt();
+    return;
+  }
+  displayAuthMessage('Google sign-in is loading. Try again in a moment.',true);
+}
+
+async function handleGoogleCredentialResponse(googleResponse){
+  if(!googleResponse?.credential){
+    displayAuthMessage('Google login failed',true);
+    return;
+  }
   try {
-    const res=await fetch('/api/google-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
-    const body=await res.json();
-    if(!res.ok){displayAuthMessage(body.error||'Google login failed',true);return;}
+    const res=await fetch('/api/google-login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({credential:googleResponse.credential})
+    });
+    const body=await res.json().catch(()=>({}));
+    if(!res.ok){displayAuthMessage(body.detail||body.error||'Google login failed',true);return;}
+    S.email=body.email || S.email;
+    S.name=body.name || S.name;
+    S.authenticated=true;
     displayAuthMessage('Signed in with Google');
     await loadProfileFromServer();
   } catch(err){
@@ -811,25 +921,17 @@ async function logout(){
 // INIT / START
 // ══════════════════════════════════════
 async function startApp(){
-  const nameEl=document.getElementById('name-in');
-  const emailEl=document.getElementById('email-in');
+  const nameEl=document.getElementById('landing-name');
   const n=nameEl.value.trim();
-  const email=((emailEl && emailEl.value.trim()) ? emailEl.value.trim() : (S.email || demoEmailForName(n))).toLowerCase();
-  if(!n){nameEl.style.borderColor='var(--sf)';nameEl.focus();return;}
-  try {
-    if(!S.authenticated || S.email !== email){
-      await demoLogin(email);
-    }
-  } catch(err){
-    displayAuthMessage(err.message||'Could not start demo',true);
+  if(!S.authenticated){
+    showAuthScreen('Log in to continue',true);
     return;
   }
+  if(!n){nameEl.style.borderColor='var(--sf)';nameEl.focus();return;}
   S.name=n;
   if(!S.initialised){
-    S.email = S.email || '';
     S.xp=0; S.streak=1; S.totalLessons=0; S.level=calcLevel(S.xp);
     S.done = S.done || {};
-    S.communityPosts=JSON.parse(JSON.stringify(COMM_POSTS));
     S.initialised=true;
   }
 
@@ -854,6 +956,7 @@ async function startApp(){
   document.getElementById('home-aff').textContent=AFFS[S.affIdx].t;
   document.getElementById('act-aff').textContent=AFFS[S.affIdx].t;
   checkBadges();
+  displayLandingMessage('');
   go('screen-checkin');
   saveProfileToServer();
 }
@@ -1677,30 +1780,147 @@ function copyBoundaryScript(){
 }
 
 function initToolkit(){
+  S.toolkit=normalizeToolkit(S.toolkit);
+  KIT_EDIT.phrase=-1;
+  KIT_EDIT.person=-1;
   const phrase=document.getElementById('kit-phrase');
   const person=document.getElementById('kit-person');
-  if(phrase)phrase.value=S.toolkit?.phrase || '';
-  if(person)person.value=S.toolkit?.person || '';
+  if(phrase)phrase.value='';
+  if(person)person.value='';
+  updateToolkitButtons();
+  renderToolkitItems();
   renderToolkitSummary();
 }
 
-function saveToolkit(){
-  S.toolkit={
-    phrase:document.getElementById('kit-phrase')?.value.trim() || '',
-    person:document.getElementById('kit-person')?.value.trim() || ''
-  };
+function updateToolkitButtons(){
+  const phraseBtn=document.getElementById('kit-phrase-btn');
+  const personBtn=document.getElementById('kit-person-btn');
+  if(phraseBtn)phraseBtn.textContent=KIT_EDIT.phrase>=0?'Update Phrase':'Save Phrase';
+  if(personBtn)personBtn.textContent=KIT_EDIT.person>=0?'Update Support':'Save Support';
+}
+
+function syncToolkitLegacyFields(){
+  S.toolkit.phrase=S.toolkit.phrases[0] || '';
+  S.toolkit.person=S.toolkit.people[0] || '';
+}
+
+function saveToolkitPhrase(){
+  const input=document.getElementById('kit-phrase');
+  const value=input?.value.trim() || '';
+  if(!value){toast('Add a phrase first');return;}
+  S.toolkit=normalizeToolkit(S.toolkit);
+  if(KIT_EDIT.phrase>=0)S.toolkit.phrases[KIT_EDIT.phrase]=value;
+  else S.toolkit.phrases.unshift(value);
+  S.toolkit.phrases=[...new Set(S.toolkit.phrases)];
+  KIT_EDIT.phrase=-1;
+  if(input)input.value='';
+  finishToolkitSave('Phrase saved');
+}
+
+function saveToolkitPerson(){
+  const input=document.getElementById('kit-person');
+  const value=input?.value.trim() || '';
+  if(!value){toast('Add a support first');return;}
+  S.toolkit=normalizeToolkit(S.toolkit);
+  if(KIT_EDIT.person>=0)S.toolkit.people[KIT_EDIT.person]=value;
+  else S.toolkit.people.unshift(value);
+  S.toolkit.people=[...new Set(S.toolkit.people)];
+  KIT_EDIT.person=-1;
+  if(input)input.value='';
+  finishToolkitSave('Support saved');
+}
+
+function clearToolkitInputs(){
+  const phrase=document.getElementById('kit-phrase');
+  const person=document.getElementById('kit-person');
+  if(phrase)phrase.value='';
+  if(person)person.value='';
+  KIT_EDIT.phrase=-1;
+  KIT_EDIT.person=-1;
+  updateToolkitButtons();
+}
+
+function finishToolkitSave(message){
+  syncToolkitLegacyFields();
   S.activitiesDone.add('toolkit');
+  updateToolkitButtons();
+  renderToolkitItems();
   renderToolkitSummary();
-  toast('Toolkit saved');
+  toast(message);
   saveProfileToServer();
+}
+
+function renderToolkitItems(){
+  const el=document.getElementById('kit-items');
+  if(!el)return;
+  S.toolkit=normalizeToolkit(S.toolkit);
+  const phraseItems=S.toolkit.phrases.map((phrase,i)=>`
+    <div class="kit-item">
+      <div class="kit-item-top">
+        <span class="kit-tag">Phrase</span>
+      </div>
+      <div class="kit-item-text">${escapeHtml(phrase)}</div>
+      <div class="kit-actions">
+        <button class="kit-action" onclick="editToolkitPhrase(${i})">Edit</button>
+        <button class="kit-action danger" onclick="deleteToolkitPhrase(${i})">Remove</button>
+      </div>
+    </div>`).join('');
+  const personItems=S.toolkit.people.map((person,i)=>`
+    <div class="kit-item">
+      <div class="kit-item-top">
+        <span class="kit-tag">Support</span>
+      </div>
+      <div class="kit-item-text">${escapeHtml(person)}</div>
+      <div class="kit-actions">
+        <button class="kit-action" onclick="editToolkitPerson(${i})">Edit</button>
+        <button class="kit-action danger" onclick="deleteToolkitPerson(${i})">Remove</button>
+      </div>
+    </div>`).join('');
+  const html=phraseItems + personItems;
+  el.innerHTML=html || '<div class="kit-empty">Nothing saved yet. Add a phrase or a safe person above to build your toolkit.</div>';
+}
+
+function editToolkitPhrase(i){
+  const phrase=S.toolkit?.phrases?.[i];
+  const input=document.getElementById('kit-phrase');
+  if(!phrase||!input)return;
+  input.value=phrase;
+  KIT_EDIT.phrase=i;
+  updateToolkitButtons();
+}
+
+function editToolkitPerson(i){
+  const person=S.toolkit?.people?.[i];
+  const input=document.getElementById('kit-person');
+  if(!person||!input)return;
+  input.value=person;
+  KIT_EDIT.person=i;
+  updateToolkitButtons();
+}
+
+function deleteToolkitPhrase(i){
+  if(!S.toolkit?.phrases?.[i])return;
+  S.toolkit.phrases.splice(i,1);
+  if(KIT_EDIT.phrase===i)KIT_EDIT.phrase=-1;
+  finishToolkitSave('Phrase removed');
+}
+
+function deleteToolkitPerson(i){
+  if(!S.toolkit?.people?.[i])return;
+  S.toolkit.people.splice(i,1);
+  if(KIT_EDIT.person===i)KIT_EDIT.person=-1;
+  finishToolkitSave('Support removed');
 }
 
 function renderToolkitSummary(){
   const el=document.getElementById('kit-summary');
   if(!el)return;
-  const phrase=S.toolkit?.phrase || 'No phrase saved yet.';
-  const person=S.toolkit?.person || 'No safe person saved yet.';
-  el.innerHTML=`<strong>Saved Toolkit</strong><br><br>Phrase: ${phrase}<br><br>Safe person: ${person}`;
+  S.toolkit=normalizeToolkit(S.toolkit);
+  const phrase=S.toolkit.phrases[0] || 'No phrase saved yet.';
+  const person=S.toolkit.people[0] || 'No safe person saved yet.';
+  el.innerHTML=`<strong>Saved Toolkit</strong>
+    <div class="kit-summary-line">Go-to phrase: ${escapeHtml(phrase)}</div>
+    <div class="kit-summary-line">Safe support: ${escapeHtml(person)}</div>`;
 }
 
 // ══════════════════════════════════════
@@ -1759,65 +1979,6 @@ function openProvSheet(){
 function copyProvSummary(){
   document.getElementById('prov-overlay').classList.remove('open');
   toast('📋 Progress summary copied!');
-}
-
-// ══════════════════════════════════════
-// COMMUNITY
-// ══════════════════════════════════════
-function switchComm(key,btn,onClass){
-  S.communityKey=key;
-  document.querySelectorAll('.comm-tab').forEach(t=>{t.classList.remove('on-r','on-t','on-p','on-s');});
-  btn.classList.add(onClass);
-  renderFeed(key);
-}
-
-function renderFeed(key){
-  const posts=S.communityPosts[key]||[];
-  document.getElementById('cfeed').innerHTML=posts.map(p=>{
-    const lk=S.likedPosts.has(p.id);
-    return `<div class="pcard">
-      <div class="phdr"><div class="pavi" style="background:${p.bg}">${p.avi}</div>
-        <div><div class="pname">${p.handle}</div><div class="ptag" style="color:${p.cc}">${p.comm}</div></div>
-        <div class="ptime">${p.time}</div></div>
-      <div class="pbody">${p.body}</div>
-      <div class="pacts">
-        <button class="pact ${lk?'liked':''}" onclick="toggleLike('${p.id}','${key}',${p.likes},this)">${lk?'❤️':'🤍'} <span>${lk?p.likes+1:p.likes}</span></button>
-        <button class="pact">💬 ${p.comments}</button>
-        <button class="pact">🔖</button>
-      </div></div>`;
-  }).join('');
-}
-
-function toggleLike(pid,key,base,btn){
-  const lk=S.likedPosts.has(pid);
-  if(lk){S.likedPosts.delete(pid);btn.classList.remove('liked');btn.innerHTML='🤍 <span>'+(base)+'</span>';}
-  else{S.likedPosts.add(pid);btn.classList.add('liked');btn.innerHTML='❤️ <span>'+(base+1)+'</span>';}
-  saveProfileToServer();
-}
-
-function toggleAnon(){
-  S.anonPost=!S.anonPost;
-  const c=document.getElementById('anon-chk');
-  c.classList.toggle('on',S.anonPost);
-  c.textContent=S.anonPost?'✓':'';
-  saveProfileToServer();
-}
-
-function submitPost(){
-  const txt=document.getElementById('compose-ta').value.trim();
-  if(!txt){toast('Write something first 💙');return;}
-  const key=S.communityKey;
-  const labels={desi:'Desi Daughters',premed:'Pre-Med',firstgen:'First Gen',therapy:'Therapy Talk'};
-  const colors={desi:'var(--ro)',premed:'var(--te)',firstgen:'var(--pu)',therapy:'var(--sf)'};
-  const bgs={desi:'var(--ro-lt)',premed:'var(--te-lt)',firstgen:'var(--pu-lt)',therapy:'var(--sf-lt)'};
-  const avis=['🌸','🌿','✨','💫','🌺','🦋'];
-  S.communityPosts[key]=[{id:'u-'+Date.now(),handle:S.anonPost?'anonymous_user':S.name.toLowerCase().replace(/\s/g,'_'),avi:avis[Math.floor(Math.random()*avis.length)],bg:bgs[key],time:'Just now',comm:labels[key],cc:colors[key],body:txt,likes:0,comments:0},...(S.communityPosts[key]||[])];
-  document.getElementById('compose-ta').value='';
-  S.activitiesDone.add('community');
-  addXP(10);checkBadges();
-  toast('💬 Posted! +10 XP');
-  renderFeed(key);
-  saveProfileToServer();
 }
 
 // ══════════════════════════════════════
@@ -1893,9 +2054,15 @@ function toggleSetting(key){
 let toastTimer=null;
 function toast(msg){
   const el=document.getElementById('toast');
-  el.textContent=msg;el.classList.add('show');
+  if(!el)return;
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
+  el.classList.remove('show');
+  el.textContent=msg;
+  void el.offsetWidth;
+  el.classList.add('show');
+  toastTimer=setTimeout(()=>{
+    el.classList.remove('show');
+  },2400);
 }
 
 function updateStatusTime(){
@@ -1912,11 +2079,17 @@ window.addEventListener('load', async ()=>{
   updateStatusTime();
   setInterval(updateStatusTime,10000);
   await loadScreenPages();
+  await loadAppConfig();
+  initGoogleAuth();
   loadProfileFromServer();
-  const nameEl = document.getElementById('name-in');
+  const nameEl = document.getElementById('landing-name');
   if(nameEl) nameEl.addEventListener('keydown', e=>{ if(e.key==='Enter') startApp(); });
-  const emailEl = document.getElementById('email-in');
-  if(emailEl) emailEl.addEventListener('keydown', e=>{ if(e.key==='Enter') startApp(); });
+  const authEmailEl = document.getElementById('auth-email');
+  const authPasswordEl = document.getElementById('auth-password');
+  const authNameEl = document.getElementById('auth-name');
+  if(authEmailEl) authEmailEl.addEventListener('keydown', e=>{ if(e.key==='Enter') loginEmail(); });
+  if(authPasswordEl) authPasswordEl.addEventListener('keydown', e=>{ if(e.key==='Enter') loginEmail(); });
+  if(authNameEl) authNameEl.addEventListener('keydown', e=>{ if(e.key==='Enter') registerEmail(); });
   const homeAff = document.getElementById('home-aff'); if(homeAff) homeAff.textContent = AFFS[0].t;
   const actAff = document.getElementById('act-aff'); if(actAff) actAff.textContent = AFFS[0].t;
 });

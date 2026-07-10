@@ -11,7 +11,6 @@ This application built around the idea of timely interventions that can help sup
 - Offers **interactive learning tracks** on themes like boundaries, family expectations, bicultural identity, academic stress, grief, and self-compassion
 - Includes **regulation tools** such as box breathing, 4-7-8 breathing, progressive relaxation, body scan, and 5-senses grounding
 - Supports **journaling, affirmations, boundary scripting, and personal toolkit building**
-- Provides a **community feed** for anonymous sharing and themed spaces
 - Persists user progress, profile data, lesson completion, and settings through a FastAPI backend
 
 ## Why this project exists
@@ -28,7 +27,7 @@ Aashna was built to explore what a culturally tailored mental wellness product c
 
 - **Frontend:** HTML, CSS, vanilla JavaScript
 - **Backend:** FastAPI
-- **Database:** SQLite via SQLAlchemy
+- **Database:** SQLite locally, Postgres-ready via SQLAlchemy
 - **App shape:** single-page app shell with screen fragments loaded from `pages/`
 
 ## Core experience
@@ -95,7 +94,7 @@ The app uses a single HTML shell (`aashna.html`) and dynamically loads screen fr
 - module rendering
 - activity state
 - XP, streaks, and badges
-- community and journal state
+- journal state
 - persistence to the backend
 
 ### Backend
@@ -103,8 +102,8 @@ The app uses a single HTML shell (`aashna.html`) and dynamically loads screen fr
 `server.py` exposes a small FastAPI app that:
 
 - serves the frontend and static assets
-- manages demo-style login and session cookies
-- stores user profiles in SQLite
+- manages email/password auth, Google sign-in, and secure session cookies
+- stores user profiles in SQLite locally and supports hosted Postgres via `DATABASE_URL`
 - returns and saves profile state through `/api/profile`
 
 ### Persistence model
@@ -115,18 +114,20 @@ The backend stores three tables:
 - `profiles`
 - `sessions`
 
-Profile data includes progress, settings, journal entries, community activity, lesson completion, and other UI state. Daily streak tracking also uses browser `localStorage` on the frontend.
+Profile data includes progress, settings, journal entries, lesson completion, and other UI state. Daily streak tracking also uses browser `localStorage` on the frontend.
 
 ## API endpoints
 
 The current backend exposes:
 
 - `GET /` - serve the app
+- `GET /api/health` - health check for deployment
+- `GET /api/config` - frontend runtime config, including whether Google sign-in is enabled
 - `GET /api/profile` - fetch the signed-in user's saved profile
 - `POST /api/profile` - save profile state
-- `POST /api/login` - create or resume a demo user session
-- `POST /api/register` - register a user and initialize a profile
-- `POST /api/google-login` - demo Google-style login flow
+- `POST /api/login` - sign in with email and password
+- `POST /api/register` - create an account and initialize a profile
+- `POST /api/google-login` - sign in with a verified Google credential
 - `GET /api/logout` - clear the current session
 
 ## Running locally
@@ -156,12 +157,33 @@ The app will be available at:
 http://localhost:8000
 ```
 
-## Data and demo behavior
+## Authentication
 
-- The app currently supports a lightweight **demo login flow**
-- Entering a name and optional email on the landing screen is enough to begin
-- If no email is provided, the frontend creates a demo-style email automatically
-- User data is saved to the local SQLite database in `aashna.db`
+- Email/password accounts are supported locally and in production
+- Google sign-in is enabled when `GOOGLE_CLIENT_ID` is configured
+- Sessions are stored server-side and sent as secure cookies in production
+- User data is saved to the local SQLite database in `aashna.db` unless `DATABASE_URL` points to Postgres
+
+## Environment variables
+
+Copy `.env.example` and set the values you need:
+
+- `DATABASE_URL` - local SQLite or hosted Postgres connection string
+- `GOOGLE_CLIENT_ID` - required to enable Google sign-in
+- `APP_ENV` - use `production` on Render
+- `SESSION_COOKIE_SECURE` - `true` in production
+
+## Deployment target
+
+This repo is now set up to target:
+
+- `Render` for the FastAPI app
+- `Neon` for the production Postgres database
+
+Use [`render.yaml`](render.yaml) as the starting point for the Render service, then set:
+
+- `DATABASE_URL` to your Neon Postgres URL
+- `GOOGLE_CLIENT_ID` to your Google OAuth web client ID
 
 ## Design notes
 
@@ -180,14 +202,12 @@ Aashna is **not** a replacement for therapy, emergency services, or crisis inter
 
 ## Known limitations
 
-- Authentication is currently demo-oriented and not production-hardened
 - Profile data is stored as a large serialized object rather than a fully normalized schema
-- The app is designed primarily for local/demo use right now
 - Some support flows are simulated product experiences rather than integrations with real providers or messaging systems
+- Community is currently on hold and not part of the active product surface
 
 ## Future directions
 
-- stronger production-grade authentication
 - provider dashboards or shared progress summaries
 - richer analytics around check-ins and module completion
 - real-time community moderation and safety tooling
