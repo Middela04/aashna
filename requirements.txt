@@ -4,3 +4,4 @@ passlib
 sqlalchemy
 google-auth
 requests
+psycopg2-binary
