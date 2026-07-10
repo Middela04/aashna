@@ -17,7 +17,7 @@ from passlib.context import CryptContext
 from sqlalchemy import Column, MetaData, String, Table, Text, create_engine, inspect, select, text
 
 BASE_DIR = Path(__file__).parent
-DB_FILE = BASE_DIR / 'aashna.db'
+DB_FILE = BASE_DIR / 'khushii.db'
 
 
 def env_flag(name: str, default: bool) -> bool:
@@ -29,7 +29,7 @@ def env_flag(name: str, default: bool) -> bool:
 
 APP_ENV = os.getenv('APP_ENV', 'development').strip().lower()
 DATABASE_URL = os.getenv('DATABASE_URL', f'sqlite:///{DB_FILE}')
-SESSION_COOKIE = os.getenv('SESSION_COOKIE_NAME', 'aashna_session')
+SESSION_COOKIE = os.getenv('SESSION_COOKIE_NAME', 'khushii_session')
 SESSION_COOKIE_SAMESITE = os.getenv('SESSION_COOKIE_SAMESITE', 'lax')
 SESSION_COOKIE_SECURE = env_flag('SESSION_COOKIE_SECURE', APP_ENV == 'production')
 SESSION_COOKIE_MAX_AGE = int(os.getenv('SESSION_COOKIE_MAX_AGE', str(60 * 60 * 24 * 30)))
@@ -231,7 +231,7 @@ def require_current_email(request: Request) -> str:
 
 @app.get('/')
 def index() -> FileResponse:
-    return FileResponse(str(BASE_DIR / 'aashna.html'))
+    return FileResponse(str(BASE_DIR / 'khushii.html'))
 
 
 @app.get('/api/health')

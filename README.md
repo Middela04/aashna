@@ -1,6 +1,6 @@
-# Aashna
+# Khushii
 
-**Aashna** is a duolingo-style mental wellness app culturally tailored for South Asian users. It combines a calming mobile-style interface with short learning modules, grounding tools, journaling, and reflections to support people between therapy sessions, not replace clinical care.
+**Khushii** is a duolingo-style mental wellness app culturally tailored for South Asian users. It combines a calming mobile-style interface with short learning modules, grounding tools, journaling, and reflections to support people between therapy sessions, not replace clinical care.
 
 This application built around the idea of timely interventions that can help support a person when a human mental health provider is not avaiable. Mental health support feels more useful when it understands the emotional realities of family expectations, bicultural identity, academic pressure, grief, stigma, and self-compassion in a South Asian context.
 
@@ -15,7 +15,7 @@ This application built around the idea of timely interventions that can help sup
 
 ## Why this project exists
 
-Aashna was built to explore what a culturally tailored mental wellness product could feel like for South Asian users. Many wellness apps are generic. This one intentionally centers experiences that are often underrepresented in product design, including:
+Khushii was built to explore what a culturally tailored mental wellness product could feel like for South Asian users. Many wellness apps are generic. This one intentionally centers experiences that are often underrepresented in product design, including:
 
 - navigating family and community expectations
 - living between cultures
@@ -67,11 +67,11 @@ Each module contains a mix of reflection, scenario, and quiz content.
 ## Project structure
 
 ```text
-aashna/
-├── aashna.html            # main app shell
+project-root/
+├── khushii.html           # main app shell
 ├── server.py              # FastAPI server and persistence layer
 ├── requirements.txt       # Python dependencies
-├── aashna.db              # SQLite database
+├── khushii.db             # SQLite database
 ├── static/
 │   ├── app.js             # client-side state, routing, rendering, logic
 │   └── style.css          # app styling
@@ -88,7 +88,7 @@ aashna/
 
 ### Frontend
 
-The app uses a single HTML shell (`aashna.html`) and dynamically loads screen fragments from `pages/` on startup. Client-side logic in `static/app.js` manages:
+The app uses a single HTML shell (`khushii.html`) and dynamically loads screen fragments from `pages/` on startup. Client-side logic in `static/app.js` manages:
 
 - screen navigation
 - module rendering
@@ -162,7 +162,7 @@ http://localhost:8000
 - Email/password accounts are supported locally and in production
 - Google sign-in is enabled when `GOOGLE_CLIENT_ID` is configured
 - Sessions are stored server-side and sent as secure cookies in production
-- User data is saved to the local SQLite database in `aashna.db` unless `DATABASE_URL` points to Postgres
+- User data is saved to the local SQLite database in `khushii.db` unless `DATABASE_URL` points to Postgres
 
 ## Environment variables
 
@@ -198,7 +198,7 @@ The content design is as important to the product as the technical implementatio
 
 ## Important disclaimer
 
-Aashna is **not** a replacement for therapy, emergency services, or crisis intervention. The product includes crisis-resource links and is positioned as a support tool between sessions or alongside care.
+Khushii is **not** a replacement for therapy, emergency services, or crisis intervention. The product includes crisis-resource links and is positioned as a support tool between sessions or alongside care.
 
 ## Known limitations
 
@@ -220,10 +220,10 @@ If you are jumping into the codebase, these are the best places to start:
 
 - [`server.py`](server.py)
 - [`static/app.js`](static/app.js)
-- [`aashna.html`](aashna.html)
+- [`khushii.html`](khushii.html)
 - [`pages/screen-landing.html`](pages/screen-landing.html)
 - [`pages/screen-home.html`](pages/screen-home.html)
 
 ## Summary
 
-Aashna is a thoughtful full-stack prototype for culturally grounded mental wellness support. It pairs a gentle user experience with structured learning, emotional regulation tools, and lightweight persistence in a way that feels product-focused rather than purely technical.
+Khushii is a thoughtful full-stack prototype for culturally grounded mental wellness support. It pairs a gentle user experience with structured learning, emotional regulation tools, and lightweight persistence in a way that feels product-focused rather than purely technical.

@@ -12,21 +12,23 @@
   --dan:#C03030;--dan-lt:#FDF0F0;
 }
 body{background:#f6efe6;background-image:radial-gradient(circle at 20% 20%,rgba(240,145,58,.14),transparent 28%),radial-gradient(circle at 80% 0%,rgba(26,122,107,.12),transparent 24%);display:flex;justify-content:center;align-items:stretch;min-height:100vh;padding:0;font-family:'Nunito',sans-serif}
-#phone{width:100%;max-width:none;min-height:100vh;max-height:none;background:var(--iv);border-radius:0;overflow:hidden;position:relative;box-shadow:none;display:flex;flex-direction:column}
-.status{display:none;height:48px;justify-content:space-between;align-items:center;padding:0 24px;font-size:12px;font-weight:900;color:var(--br);flex-shrink:0;z-index:20;position:relative}
-.status-xp{font-size:11px;color:var(--sf);font-weight:900}
-.status-dots{cursor:pointer;font-size:20px;color:var(--br-mid);user-select:none;padding:4px 6px;border-radius:8px;transition:background .15s;letter-spacing:-1px}
+#phone{width:100%;max-width:none;height:100dvh;min-height:100vh;background:var(--iv);border-radius:0;overflow:hidden;position:relative;box-shadow:none;display:flex;flex-direction:column}
+.status{display:grid;grid-template-columns:32px 1fr 32px;height:56px;align-items:center;padding:0 20px;background:var(--cr);border-bottom:1.5px solid var(--iv-dk);font-size:12px;font-weight:900;color:var(--br);flex-shrink:0;z-index:120;position:sticky;top:0}
+.status.hidden{display:none}
+.status-spacer{width:32px;height:32px}
+.status-xp{font-size:11px;color:var(--sf);font-weight:900;text-align:center}
+.status-dots{cursor:pointer;font-size:20px;color:var(--br-mid);user-select:none;padding:4px 6px;border-radius:8px;transition:background .15s;letter-spacing:-1px;justify-self:end}
 .status-dots:hover{background:rgba(0,0,0,.08)}
-.screen{display:none;flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:28px;scroll-behavior:smooth}
-#screen-pages{flex:1;display:flex;flex-direction:column;overflow:visible;min-height:0}
-.screen.active{display:block;animation:slideUp .25s ease both}
+.screen{display:none;flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:28px;scroll-behavior:smooth;min-height:0}
+#screen-pages{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.screen.active{display:block;height:100%;animation:slideUp .25s ease both}
 .screen.nosub{padding-bottom:0}
 .screen::-webkit-scrollbar{display:none}
 @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes popIn{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-#nav{height:82px;background:var(--cr);border-top:1.5px solid var(--iv-dk);display:flex;align-items:center;justify-content:space-around;padding:0 4px 14px;flex-shrink:0;z-index:100}
+#nav{height:82px;background:var(--cr);border-top:1.5px solid var(--iv-dk);display:flex;align-items:center;justify-content:space-around;padding:0 4px 14px;flex-shrink:0;z-index:120;position:sticky;bottom:0}
 #nav.hidden{display:none}
 .nv{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 8px;border-radius:12px;cursor:pointer;border:none;background:transparent;font-family:'Nunito',sans-serif;transition:background .15s}
 .nv-ic{font-size:20px;transition:transform .2s}

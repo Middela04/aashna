@@ -9,7 +9,7 @@ async function loadScreenPages(){
   if(!container) return;
   for(const id of screenIds){
     try {
-      const res = await fetch('pages/' + id + '.html?v=20260709-08');
+      const res = await fetch('pages/' + id + '.html?v=20260709-09');
       if(!res.ok){ console.error('Failed to load', id, res.status); continue; }
       const html = await res.text();
       const wrapper = document.createElement('div');
@@ -613,7 +613,7 @@ const BOT = [
   {p:/identity|who am i|belong|where do i fit|both worlds/i,t:"The bicultural identity question is one of the deepest there is. That friction is real. The Biculturalism & Identity module explores exactly this — but tell me more about where you are right now."},
   {p:/therapy|therapist|help|should i see/i,t:"Reaching out for therapy takes courage, especially when it\'s not normalized in your community. I\'d suggest looking for a culturally competent therapist — someone who understands South Asian family dynamics. Psychology Today lets you filter for this. Would that be helpful?"},
   {p:/thank|helped|feel better|good now/i,t:"I\'m really glad. This space is always here for you. Take care of yourself 🌿"},
-  {p:/hi|hello|hey|start/i,t:"Hey, I\'m really glad you\'re here. I\'m an Aashna peer support — not a therapist, but I\'m here to listen with care. This is a safe space, and this conversation is private. What\'s on your mind today?"},
+  {p:/hi|hello|hey|start/i,t:"Hey, I\'m really glad you\'re here. I\'m a Khushii peer support guide, not a therapist, but I\'m here to listen with care. This is a safe space, and this conversation is private. What\'s on your mind today?"},
 ];
 
 // ══════════════════════════════════════
@@ -637,8 +637,10 @@ function go(id){
   const el=document.getElementById(id);
   if(!el)return;
   el.classList.add('active'); el.scrollTop=0;
-  const show=id!=='screen-landing';
-  document.getElementById('nav').classList.toggle('hidden',!show||['screen-breathbox','screen-breath478','screen-prog-relax','screen-bodyscan','screen-senses','screen-affirmations','screen-journal','screen-boundary-builder','screen-toolkit','screen-therapy-stigma','screen-textline','screen-privacy','screen-terms','screen-support'].includes(id));
+  const show=id!=='screen-landing' && id!=='screen-auth';
+  const hideNav=!show||['screen-breathbox','screen-breath478','screen-prog-relax','screen-bodyscan','screen-senses','screen-affirmations','screen-journal','screen-boundary-builder','screen-toolkit','screen-therapy-stigma','screen-textline','screen-privacy','screen-terms','screen-support'].includes(id);
+  document.getElementById('status')?.classList.toggle('hidden',!show);
+  document.getElementById('nav').classList.toggle('hidden',hideNav);
   document.querySelectorAll('.nv').forEach(n=>n.classList.remove('active'));
   const nv=document.getElementById(NAV_IDS[id]||'');
   if(nv)nv.classList.add('active');
@@ -759,6 +761,7 @@ async function saveProfileToServer(){
 function showAuthScreen(message='', isError=false){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-auth').classList.add('active');
+  document.getElementById('status')?.classList.add('hidden');
   document.getElementById('nav').classList.add('hidden');
   const msg = document.getElementById('auth-msg');
   if(msg){
@@ -936,8 +939,8 @@ async function startApp(){
     S.initialised=true;
   }
 
-  const visitKey = 'aashna_last_visit_' + (S.email||'guest');
-  const streakKey = 'aashna_streak_' + (S.email||'guest');
+  const visitKey = 'khushii_last_visit_' + (S.email||'guest');
+  const streakKey = 'khushii_streak_' + (S.email||'guest');
   const today=new Date().toDateString();
   const lastVisit=localStorage.getItem(visitKey);
   const savedStreak=parseInt(localStorage.getItem(streakKey)||'0');
@@ -2066,19 +2069,11 @@ function toast(msg){
   },2400);
 }
 
-function updateStatusTime(){
-  const el=document.getElementById('status-time');
-  if(!el)return;
-  el.textContent=new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
-}
-
 // ══════════════════════════════════════
 // INIT
 // ══════════════════════════════════════
 // ── INIT COMPLETE ──
 window.addEventListener('load', async ()=>{
-  updateStatusTime();
-  setInterval(updateStatusTime,10000);
   await loadScreenPages();
   await loadAppConfig();
   initGoogleAuth();
