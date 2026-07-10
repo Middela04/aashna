@@ -3,13 +3,13 @@ async function loadScreenPages(){
     'screen-landing','screen-auth','screen-home','screen-checkin','screen-courses','screen-module','screen-lesson','screen-scenario',
     'screen-activities','screen-breathbox','screen-breath478','screen-prog-relax','screen-bodyscan','screen-senses',
     'screen-affirmations','screen-journal','screen-boundary-builder','screen-toolkit','screen-therapy-stigma',
-    'screen-resources','screen-profile','screen-textline'
+    'screen-resources','screen-profile','screen-privacy','screen-terms','screen-support','screen-textline'
   ];
   const container = document.getElementById('screen-pages');
   if(!container) return;
   for(const id of screenIds){
     try {
-      const res = await fetch('pages/' + id + '.html?v=20260709-07');
+      const res = await fetch('pages/' + id + '.html?v=20260709-08');
       if(!res.ok){ console.error('Failed to load', id, res.status); continue; }
       const html = await res.text();
       const wrapper = document.createElement('div');
@@ -622,6 +622,7 @@ const BOT = [
 const NAV_IDS = {
   'screen-home':'nv-home','screen-checkin':'nv-home','screen-courses':'nv-courses','screen-activities':'nv-activities',
   'screen-resources':'nv-resources','screen-profile':'nv-profile',
+  'screen-privacy':'nv-profile','screen-terms':'nv-profile','screen-support':'nv-profile',
   'screen-module':'nv-courses','screen-lesson':'nv-courses','screen-scenario':'nv-courses',
   'screen-breathbox':'nv-activities','screen-breath478':'nv-activities','screen-prog-relax':'nv-activities',
   'screen-bodyscan':'nv-activities','screen-senses':'nv-activities','screen-affirmations':'nv-activities',
@@ -637,7 +638,7 @@ function go(id){
   if(!el)return;
   el.classList.add('active'); el.scrollTop=0;
   const show=id!=='screen-landing';
-  document.getElementById('nav').classList.toggle('hidden',!show||['screen-breathbox','screen-breath478','screen-prog-relax','screen-bodyscan','screen-senses','screen-affirmations','screen-journal','screen-boundary-builder','screen-toolkit','screen-therapy-stigma','screen-textline'].includes(id));
+  document.getElementById('nav').classList.toggle('hidden',!show||['screen-breathbox','screen-breath478','screen-prog-relax','screen-bodyscan','screen-senses','screen-affirmations','screen-journal','screen-boundary-builder','screen-toolkit','screen-therapy-stigma','screen-textline','screen-privacy','screen-terms','screen-support'].includes(id));
   document.querySelectorAll('.nv').forEach(n=>n.classList.remove('active'));
   const nv=document.getElementById(NAV_IDS[id]||'');
   if(nv)nv.classList.add('active');

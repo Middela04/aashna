@@ -11,14 +11,14 @@
   --gn:#2A7A2A;--gn-lt:#E6F4E6;
   --dan:#C03030;--dan-lt:#FDF0F0;
 }
-body{background:#1A1008;background-image:radial-gradient(ellipse at 25% 15%,rgba(240,145,58,.1),transparent 55%),radial-gradient(ellipse at 75% 85%,rgba(26,122,107,.1),transparent 55%);display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:28px 16px;font-family:'Nunito',sans-serif}
-#phone{width:min(390px,calc(100vw - 32px));max-width:390px;min-height:844px;max-height:min(932px,calc(100vh - 56px));background:var(--iv);border-radius:44px;overflow:hidden;position:relative;box-shadow:0 60px 120px rgba(0,0,0,.65),0 0 0 1.5px rgba(255,255,255,.07);display:flex;flex-direction:column}
-.status{height:48px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-size:12px;font-weight:900;color:var(--br);flex-shrink:0;z-index:20;position:relative}
+body{background:#f6efe6;background-image:radial-gradient(circle at 20% 20%,rgba(240,145,58,.14),transparent 28%),radial-gradient(circle at 80% 0%,rgba(26,122,107,.12),transparent 24%);display:flex;justify-content:center;align-items:stretch;min-height:100vh;padding:0;font-family:'Nunito',sans-serif}
+#phone{width:100%;max-width:none;min-height:100vh;max-height:none;background:var(--iv);border-radius:0;overflow:hidden;position:relative;box-shadow:none;display:flex;flex-direction:column}
+.status{display:none;height:48px;justify-content:space-between;align-items:center;padding:0 24px;font-size:12px;font-weight:900;color:var(--br);flex-shrink:0;z-index:20;position:relative}
 .status-xp{font-size:11px;color:var(--sf);font-weight:900}
 .status-dots{cursor:pointer;font-size:20px;color:var(--br-mid);user-select:none;padding:4px 6px;border-radius:8px;transition:background .15s;letter-spacing:-1px}
 .status-dots:hover{background:rgba(0,0,0,.08)}
-.screen{display:none;flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:94px;scroll-behavior:smooth}
-#screen-pages{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.screen{display:none;flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:28px;scroll-behavior:smooth}
+#screen-pages{flex:1;display:flex;flex-direction:column;overflow:visible;min-height:0}
 .screen.active{display:block;animation:slideUp .25s ease both}
 .screen.nosub{padding-bottom:0}
 .screen::-webkit-scrollbar{display:none}
@@ -90,6 +90,28 @@ body{background:#1A1008;background-image:radial-gradient(ellipse at 25% 15%,rgba
 .land-btn{width:100%;background:var(--sf);color:#fff;border:none;border-radius:15px;padding:16px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:18px;transition:background .15s}
 .land-btn:hover{background:var(--sf-dk)}
 .land-disc{font-size:11px;color:rgba(255,255,255,.28);line-height:1.65;text-align:center}
+
+#nav{
+  height:72px;
+  padding:0 24px;
+  justify-content:center;
+  gap:18px;
+}
+.hdr,.home-hdr,.j-hdr,.modhdr,.p-hdr{
+  padding-left:clamp(20px,6vw,72px);
+  padding-right:clamp(20px,6vw,72px);
+}
+.pad,.pp,.lpath,.j-body,.spad,.lesson-body{
+  padding-left:clamp(20px,6vw,72px);
+  padding-right:clamp(20px,6vw,72px);
+}
+.agrid,.astrip,.ctabs,.ctab-row,.cfeed{
+  padding-left:clamp(20px,6vw,72px);
+  padding-right:clamp(20px,6vw,72px);
+}
+.land,.tool-wrap,.bwrap,.pr-wrap,.bs-wrap,.check-wrap,.aff-wrap,.tl-wrap{
+  min-height:calc(100vh - 72px);
+}
 /* ── HOME ── */
 .home-hdr{background:var(--sf);padding:16px 22px 28px;position:relative;overflow:hidden}
 .home-hdr::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;border:26px solid rgba(255,255,255,.1)}
@@ -226,12 +248,19 @@ body{background:#1A1008;background-image:radial-gradient(ellipse at 25% 15%,rgba
 .res-card{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--iv-dk);border-radius:17px;padding:14px 13px;text-decoration:none;color:inherit;transition:transform .15s,border-color .15s,background .15s}
 .res-card:active{transform:scale(.98)}
 .res-card:hover{border-color:var(--sf);background:var(--sf-lt)}
+.res-btn{width:100%;font-family:'Nunito',sans-serif;cursor:pointer}
 .res-card.urgent{border-color:#E9B8B8}
 .res-ic{width:42px;height:42px;border-radius:13px;background:var(--ro-lt);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .res-main{flex:1;min-width:0}
 .res-main h3{font-size:13px;font-weight:900;color:var(--br);margin-bottom:3px}
 .res-main p{font-size:11px;font-weight:700;color:var(--br-mid);line-height:1.45}
 .res-go{font-size:16px;font-weight:900;color:var(--ro);flex-shrink:0}
+.legal-wrap{padding-bottom:24px}
+.legal-meta{font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--br-lt);margin-bottom:14px}
+.legal-card{background:#fff;border:1.5px solid var(--iv-dk);border-radius:18px;padding:16px;margin-bottom:12px}
+.legal-card h3{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--br);margin-bottom:8px}
+.legal-card p{font-size:13px;color:var(--br-mid);line-height:1.7}
+.legal-link{display:inline-block;margin-top:12px;font-size:13px;font-weight:900;color:var(--sf);text-decoration:none}
 /* ── PERSONAL TOOLS ── */
 .tool-wrap{min-height:796px;padding:20px 22px 34px;position:relative;color:#fff}
 .tool-boundary{background:linear-gradient(160deg,#3A1800,#9A4F12 58%,#4A2608)}
@@ -431,6 +460,9 @@ body{background:#1A1008;background-image:radial-gradient(ellipse at 25% 15%,rgba
 .mrtitle{font-size:13px;font-weight:800;color:var(--br)}
 .mrsub{font-size:11px;color:var(--br-lt);margin-top:2px}
 .prov-btn{margin:8px 22px 22px;width:calc(100%-44px);background:var(--te);color:#fff;border:none;border-radius:15px;padding:14px;font-size:14px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;gap:7px;width:calc(100% - 44px)}
+.info-list{display:flex;flex-direction:column;gap:10px}
+.info-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1.5px solid var(--iv-dk);border-radius:15px;padding:14px 15px;color:var(--br);font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;text-align:left}
+.info-row strong{font-size:16px;color:var(--sf);flex-shrink:0}
 /* ── COMMUNITY ── */
 .crise{background:#FFF2F2;border:1.5px solid #F0BEBE;border-radius:17px;padding:13px 15px;display:flex;align-items:center;gap:11px;margin:0 22px 18px}
 .crise-ic{font-size:24px;flex-shrink:0}
