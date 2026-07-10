@@ -5,17 +5,20 @@
   <div class="land-name">Aashna</div>
   <div class="land-deva">आशना</div>
   <div class="land-tag">A wellness companion with saved progress for each account.</div>
-  <div class="land-sub">Log in or create an account to keep your lessons, journal, and activity data safe.</div>
+  <div class="land-sub">Log in or create an account to keep your lessons, journal, and activity data safe across devices.</div>
   <div class="land-lbl">Email</div>
   <input class="land-in" id="auth-email" type="email" placeholder="you@example.com" autocomplete="email">
   <div class="land-lbl" style="margin-top:10px">Password</div>
   <input class="land-in" id="auth-password" type="password" placeholder="Enter password" autocomplete="current-password">
   <div class="land-lbl" style="margin-top:10px">Name (optional)</div>
-  <input class="land-in" id="name-in" type="text" placeholder="Your display name" autocomplete="name">
+  <input class="land-in" id="auth-name" type="text" placeholder="Your display name" autocomplete="name">
   <button class="land-btn" onclick="loginEmail()">Log in</button>
   <button class="btn-te" onclick="registerEmail()">Create account</button>
-  <button class="btn-out" style="margin-top:10px" onclick="loginWithGoogle()">Continue with Google</button>
+  <div id="google-auth-wrap" style="margin-top:10px;display:none">
+    <div id="google-signin-button" style="display:flex;justify-content:center"></div>
+  </div>
+  <button class="btn-out" id="google-auth-fallback" style="margin-top:10px" onclick="loginWithGoogle()">Continue with Google</button>
   <div class="auth-msg" id="auth-msg"></div>
-  <div class="land-disc">Google login is demo-only. If you want, just use your email and password for a real account.</div>
+  <div class="land-disc">Use a password for your account, or sign in with a verified Google email if Google sign-in is enabled.</div>
 </div>
 </div>
