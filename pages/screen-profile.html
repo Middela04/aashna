@@ -12,6 +12,28 @@
   <div class="sc"><span class="sbig" id="p-lessons">0</span><span class="ssm">Lessons</span></div>
 </div>
 <div class="pp">
+  <div class="sec">Account</div>
+  <div class="account-card">
+    <label class="account-label" for="account-name">Display Name</label>
+    <input class="account-input" id="account-name" type="text" maxlength="80" placeholder="Your display name">
+    <div class="account-row">
+      <div class="account-meta">
+        <span class="account-meta-label">Email</span>
+        <strong id="account-email">you@example.com</strong>
+      </div>
+      <button class="account-save" onclick="saveAccountName()">Save Name</button>
+    </div>
+    <div class="account-help">Your name updates how the app greets you across screens.</div>
+  </div>
+  <div class="account-card danger">
+    <div class="account-meta">
+      <span class="account-meta-label">Delete Account</span>
+      <strong>Permanently remove your login and saved progress</strong>
+    </div>
+    <div class="account-help">This deletes your account, saved profile, journal, toolkit items, and active sessions.</div>
+    <button class="account-delete" onclick="deleteAccount()">Delete Account</button>
+  </div>
+  <div class="dvd"></div>
   <div class="sec">Badges</div>
   <div class="bgrid" id="badge-grid"></div>
   <div class="dvd"></div>
@@ -20,6 +42,7 @@
   <div class="dvd"></div>
   <div class="sec">App Info</div>
   <div class="info-list">
+    <button class="info-row" onclick="go('screen-about')"><span>About the App</span><strong>→</strong></button>
     <button class="info-row" onclick="go('screen-privacy')"><span>Privacy Policy</span><strong>→</strong></button>
     <button class="info-row" onclick="go('screen-terms')"><span>Terms of Use</span><strong>→</strong></button>
     <button class="info-row" onclick="go('screen-support')"><span>Support</span><strong>→</strong></button>

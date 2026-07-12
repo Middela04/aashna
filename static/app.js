@@ -3,13 +3,13 @@ async function loadScreenPages(){
     'screen-landing','screen-auth','screen-home','screen-checkin','screen-courses','screen-module','screen-lesson','screen-scenario',
     'screen-activities','screen-breathbox','screen-breath478','screen-prog-relax','screen-bodyscan','screen-senses',
     'screen-affirmations','screen-journal','screen-boundary-builder','screen-toolkit','screen-therapy-stigma',
-    'screen-resources','screen-profile','screen-privacy','screen-terms','screen-support','screen-textline'
+    'screen-resources','screen-profile','screen-about','screen-privacy','screen-terms','screen-support','screen-textline'
   ];
   const container = document.getElementById('screen-pages');
   if(!container) return;
   for(const id of screenIds){
     try {
-      const res = await fetch('pages/' + id + '.html?v=20260710-10');
+      const res = await fetch('pages/' + id + '.html?v=20260711-12');
       if(!res.ok){ console.error('Failed to load', id, res.status); continue; }
       const html = await res.text();
       const wrapper = document.createElement('div');
@@ -668,7 +668,7 @@ const BOT = [
 const NAV_IDS = {
   'screen-home':'nv-home','screen-checkin':'nv-home','screen-courses':'nv-courses','screen-activities':'nv-activities',
   'screen-resources':'nv-resources','screen-profile':'nv-profile',
-  'screen-privacy':'nv-profile','screen-terms':'nv-profile','screen-support':'nv-profile',
+  'screen-about':'nv-profile','screen-privacy':'nv-profile','screen-terms':'nv-profile','screen-support':'nv-profile',
   'screen-module':'nv-courses','screen-lesson':'nv-courses','screen-scenario':'nv-courses',
   'screen-breathbox':'nv-activities','screen-breath478':'nv-activities','screen-prog-relax':'nv-activities',
   'screen-bodyscan':'nv-activities','screen-senses':'nv-activities','screen-affirmations':'nv-activities',
@@ -987,6 +987,29 @@ async function logout(){
   } catch(e){}
   S.name=''; S.email=''; S.authenticated=false; S.initialised=false;
   showAuthScreen('Logged out');
+}
+
+async function forgotPassword(){
+  const email=document.getElementById('auth-email')?.value.trim() || '';
+  if(!email){
+    displayAuthMessage('Enter your email first, then tap Forgot password.',true);
+    return;
+  }
+  try{
+    const res=await fetch('/api/password-help',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email})
+    });
+    const body=await res.json().catch(()=>({}));
+    if(!res.ok){
+      displayAuthMessage(body.detail||body.error||'Could not start password help',true);
+      return;
+    }
+    displayAuthMessage(body.message||'Check Support for password help.');
+  } catch(err){
+    displayAuthMessage('Could not start password help',true);
+  }
 }
 
 // ══════════════════════════════════════
@@ -2025,6 +2048,10 @@ function renderProfile(){
   document.getElementById('pname').textContent=S.name;
   document.getElementById('plvl').textContent='Level '+S.level+' · '+levelTitle(S.level);
   document.getElementById('avi').textContent=S.avi;
+  const accountName=document.getElementById('account-name');
+  if(accountName)accountName.value=S.name || '';
+  const accountEmail=document.getElementById('account-email');
+  if(accountEmail)accountEmail.textContent=S.email || 'Not available';
   document.getElementById('p-streak').textContent=S.streak;
   document.getElementById('p-xp').textContent=S.xp;
   document.getElementById('p-lessons').textContent=S.totalLessons;
@@ -2062,6 +2089,78 @@ function setAvi(e){
   renderAvatarPicker();
   document.getElementById('avi-picker').classList.remove('open');
   saveProfileToServer();
+}
+
+async function saveAccountName(){
+  const input=document.getElementById('account-name');
+  const nextName=input?.value.trim() || '';
+  if(!nextName){
+    toast('Enter a display name first');
+    input?.focus();
+    return;
+  }
+  try{
+    const res=await fetch('/api/account',{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:nextName})
+    });
+    const body=await res.json().catch(()=>({}));
+    if(!res.ok){
+      if(res.status===401){showAuthScreen('Log in to manage your account',true);return;}
+      toast(body.detail||body.error||'Could not update name');
+      return;
+    }
+    S.name=body.name || nextName;
+    const landingName=document.getElementById('landing-name');
+    if(landingName)landingName.value=S.name;
+    const authName=document.getElementById('auth-name');
+    if(authName)authName.value=S.name;
+    renderProfile();
+    const homeGreeting=document.getElementById('home-gr');
+    if(homeGreeting)homeGreeting.textContent='Hey, '+S.name+' ✨';
+    toast('Display name updated');
+  } catch(err){
+    toast('Could not update name');
+  }
+}
+
+async function deleteAccount(){
+  const confirmed=window.confirm('Delete your account permanently? This will remove your login, profile, progress, journal, and saved tools.');
+  if(!confirmed)return;
+  try{
+    const res=await fetch('/api/account',{method:'DELETE'});
+    const body=await res.json().catch(()=>({}));
+    if(!res.ok){
+      if(res.status===401){showAuthScreen('Log in to manage your account',true);return;}
+      toast(body.detail||body.error||'Could not delete account');
+      return;
+    }
+    S.name='';
+    S.email='';
+    S.xp=0;
+    S.sessionXp=0;
+    S.streak=0;
+    S.totalLessons=0;
+    S.level=1;
+    S.avi='🌸';
+    S.authenticated=false;
+    S.moodDone=false;
+    S.unlockAll=false;
+    S.done={};
+    S.activitiesDone=new Set();
+    S.journal=[];
+    S.affIdx=0;
+    S.affCat='Identity';
+    S.affLoved=new Set();
+    S.toolkit={phrase:'',person:'',phrases:[],people:[]};
+    S.checkins=[];
+    S.modProgress={bounds:3,bicul:1,family:0};
+    S.initialised=false;
+    showAuthScreen('Account deleted');
+  } catch(err){
+    toast('Could not delete account');
+  }
 }
 
 function openProvSheet(){

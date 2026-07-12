@@ -95,6 +95,14 @@ class GoogleLoginRequest(BaseModel):
     credential: str
 
 
+class UpdateAccountRequest(BaseModel):
+    name: str
+
+
+class PasswordHelpRequest(BaseModel):
+    email: str
+
+
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
@@ -229,6 +237,35 @@ def require_current_email(request: Request) -> str:
     return email
 
 
+def update_account_name(email: str, name: str) -> Dict[str, Any]:
+    clean_name = normalize_name(name, email)
+    profile = get_profile(email)
+    profile['name'] = clean_name
+    with engine.begin() as conn:
+        conn.execute(
+            users.update()
+            .where(users.c.email == email)
+            .values(name=clean_name)
+        )
+        existing = conn.execute(select(profiles.c.email).where(profiles.c.email == email)).first()
+        if existing:
+            conn.execute(
+                profiles.update()
+                .where(profiles.c.email == email)
+                .values(data=json.dumps(profile, ensure_ascii=False))
+            )
+        else:
+            conn.execute(profiles.insert().values(email=email, data=json.dumps(profile, ensure_ascii=False)))
+    return {'status': 'updated', 'name': clean_name, 'email': email}
+
+
+def delete_account(email: str) -> None:
+    with engine.begin() as conn:
+        conn.execute(sessions.delete().where(sessions.c.email == email))
+        conn.execute(profiles.delete().where(profiles.c.email == email))
+        conn.execute(users.delete().where(users.c.email == email))
+
+
 @app.get('/')
 def index() -> FileResponse:
     return FileResponse(str(BASE_DIR / 'khushii.html'))
@@ -260,6 +297,40 @@ def api_save_profile(request: Request, profile: Dict[str, Any]):
     email = require_current_email(request)
     save_profile(email, profile)
     return {'status': 'saved'}
+
+
+@app.patch('/api/account')
+def api_update_account(request: Request, req: UpdateAccountRequest):
+    email = require_current_email(request)
+    return update_account_name(email, req.name)
+
+
+@app.delete('/api/account')
+def api_delete_account(request: Request, response: Response):
+    email = require_current_email(request)
+    delete_account(email)
+    response.delete_cookie(SESSION_COOKIE, path='/', samesite=SESSION_COOKIE_SAMESITE, secure=SESSION_COOKIE_SECURE)
+    return {'status': 'deleted'}
+
+
+@app.post('/api/password-help')
+def api_password_help(req: PasswordHelpRequest):
+    email = normalize_email(req.email)
+    with engine.connect() as conn:
+        row = conn.execute(select(users).where(users.c.email == email)).first()
+    if row:
+        user = row._mapping
+        password_hash = user.get('password_hash') or ''
+        google_sub = user.get('google_sub')
+        if google_sub and password_hash.startswith('!'):
+            return {
+                'status': 'ok',
+                'message': 'This account uses Google sign-in. Tap Continue with Google to access it.'
+            }
+    return {
+        'status': 'ok',
+        'message': 'Password reset email is not set up yet. Please use the Support page or mhisa.org contact channels for help resetting your password.'
+    }
 
 
 @app.post('/api/register')
