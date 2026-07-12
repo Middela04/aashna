@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Khushii · खुशी</title>
+<title>khushii · खुशी</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fraunces:opsz,ital,wght@9..144,0,500;9..144,0,700;9..144,1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="static/style.css?v=20260709-09">
+<link rel="stylesheet" href="static/style.css?v=20260711-48">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 </head>
-<body>
+<body data-theme="mhisa">
 <div id="phone">
 <div class="status hidden" id="status">
-  <span class="status-spacer" aria-hidden="true"></span>
+  <button class="status-homeback hidden" id="status-homeback" onclick="goBack()" aria-label="Go back">←</button>
   <span class="status-xp" id="sxp"></span>
   <span class="status-dots" onclick="openSettings()" title="Settings">⠿</span>
 </div>
@@ -42,6 +42,10 @@
     <div class="setting-info"><h4>Daily Reminder</h4><p>Browser notifications (demo)</p></div>
     <div class="toggle" id="notif-toggle" onclick="toggleSetting('notif')"><div class="toggle-thumb"></div></div>
   </div>
+  <div class="theme-block">
+    <div class="setting-info"><h4>Theme</h4><p>Choose the visual mood of your space</p></div>
+    <div class="theme-grid" id="theme-grid"></div>
+  </div>
   <div class="setting-row">
     <div class="setting-info"><h4>Provider Code</h4><p>Link your account to a provider</p></div>
     <div class="setting-tag" id="prov-code-tag">Not linked</div>
@@ -51,7 +55,7 @@
     <div class="setting-tag" id="session-xp-tag">+0 XP</div>
   </div>
   <div class="about-block">
-    <p><strong>Khushii (खुशी)</strong> — meaning <em>happiness</em><br><br>Khushii is a culturally tailored mental wellness companion for South Asians, not a replacement for therapy, but a trusted space between sessions.<br><br>Built with love for the community. 🌿</p>
+    <p><strong>khushii (खुशी)</strong> — meaning <em>happiness</em><br><br>Khushii is a culturally tailored mental wellness companion for South Asians, not a replacement for therapy, but a trusted space between sessions.<br><br>Built with love for the community. 🌿</p>
   </div>
   <div style="margin-top:14px"><button class="btn-out" style="width:100%;margin-bottom:10px" onclick="logout()">Log out</button><button class="btn-out" style="width:100%" onclick="closeSettings()">Close</button></div>
 </div>
@@ -73,6 +77,6 @@
 <div class="toast" id="toast"></div>
 </div>
 
-<script src="static/app.js?v=20260709-09"></script>
+<script src="static/app.js?v=20260711-15"></script>
 </body>
 </html>

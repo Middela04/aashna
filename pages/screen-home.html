@@ -1,11 +1,12 @@
 <!-- ════ HOME ════ -->
 <div id="screen-home" class="screen">
 <div class="home-hdr">
-  <div class="home-gr" id="home-gr">Namaste ✨</div>
+  <div class="home-hero-art" aria-hidden="true"></div>
+  <div class="home-gr" id="home-gr">Hey ✨</div>
   <div class="home-title">Your Space</div>
   <div class="home-pills">
-    <div class="pill" id="streak-pill">🔥 <span id="streak-n">0</span>-day streak</div>
-    <div class="pill" id="xp-pill">⭐ <span id="xp-n">0</span> XP</div>
+    <div class="pill" id="streak-pill">🔥 <span id="streak-n">0</span>day streak</div>
+    <div class="pill" id="xp-pill"><span class="mhisa-inline-icon mhisa-inline-icon-sm" aria-hidden="true"></span><span id="xp-n">0</span> XP</div>
     <div class="pill" id="level-pill">💎 Level <span id="lvl-n">1</span></div>
   </div>
 </div>
@@ -22,29 +23,29 @@
 </div>
 <div class="pad" style="padding-top:12px">
   <div class="cont-card" id="home-continue" onclick="goMod('bounds')">
-    <div style="font-size:34px;flex-shrink:0">🌿</div>
-    <div style="flex:1">
-      <div style="font-size:14px;font-weight:900;color:var(--pu)">Continue: Maintaining Boundaries</div>
-      <div style="font-size:11px;color:var(--br-mid);margin-top:2px">Next: Lesson 3 · At Family Gatherings</div>
-      <div class="bw" style="margin-top:7px"><div class="bf" style="width:33%;background:var(--pu)"></div></div>
+    <div class="cont-icon">🌿</div>
+    <div class="cont-main">
+      <div class="cont-title">Continue: Maintaining Boundaries</div>
+      <div class="cont-sub">Next: Lesson 3 · At Family Gatherings</div>
+      <div class="bw cont-progress"><div class="bf cont-progress-fill" style="width:33%"></div></div>
     </div>
-    <button style="margin-left:7px;background:var(--pu);color:#fff;border:none;border-radius:11px;padding:8px 13px;font-size:12px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;flex-shrink:0">Go</button>
+    <button class="cont-go">Go</button>
   </div>
   <div class="sec">Quick Tools</div>
   <div class="strip-row" style="margin-bottom:20px">
-    <div class="strip-btn" onclick="go('screen-breathbox')"><div class="strip-c" style="background:var(--te-lt)">🫁</div><span class="strip-lb">Box Breathing</span></div>
-    <div class="strip-btn" onclick="go('screen-senses')"><div class="strip-c" style="background:var(--pu-lt)">👁️</div><span class="strip-lb">5 Senses</span></div>
-    <div class="strip-btn" onclick="go('screen-affirmations')"><div class="strip-c" style="background:var(--go-lt)">✨</div><span class="strip-lb">Affirmations</span></div>
-    <div class="strip-btn" onclick="go('screen-journal')"><div class="strip-c" style="background:var(--gn-lt)">📔</div><span class="strip-lb">Journal</span></div>
-    <div class="strip-btn" onclick="go('screen-textline')"><div class="strip-c" style="background:var(--ro-lt)">💬</div><span class="strip-lb">Text Line</span></div>
-    <div class="strip-btn" onclick="go('screen-boundary-builder')"><div class="strip-c" style="background:var(--sf-lt)">🛡️</div><span class="strip-lb">Boundary Script</span></div>
-    <div class="strip-btn" onclick="go('screen-toolkit')"><div class="strip-c" style="background:var(--te-lt)">🧰</div><span class="strip-lb">Toolkit</span></div>
-    <div class="strip-btn" onclick="go('screen-therapy-stigma')"><div class="strip-c" style="background:var(--pu-lt)">🛋️</div><span class="strip-lb">Therapy Stigma</span></div>
+    <div class="strip-btn" onclick="go('screen-breathbox')"><div class="strip-c">🫁</div><span class="strip-lb">Box Breathing</span></div>
+    <div class="strip-btn" onclick="go('screen-senses')"><div class="strip-c">👁️</div><span class="strip-lb">5 Senses</span></div>
+    <div class="strip-btn" onclick="go('screen-affirmations')"><div class="strip-c">✨</div><span class="strip-lb">Affirmations</span></div>
+    <div class="strip-btn" onclick="go('screen-journal')"><div class="strip-c">📔</div><span class="strip-lb">Journal</span></div>
+    <div class="strip-btn" onclick="go('screen-textline')"><div class="strip-c">💬</div><span class="strip-lb">Text Line</span></div>
+    <div class="strip-btn" onclick="go('screen-boundary-builder')"><div class="strip-c">🛡️</div><span class="strip-lb">Boundary Script</span></div>
+    <div class="strip-btn" onclick="go('screen-toolkit')"><div class="strip-c">🧰</div><span class="strip-lb">Toolkit</span></div>
+    <div class="strip-btn" onclick="go('screen-therapy-stigma')"><div class="strip-c">🛋️</div><span class="strip-lb">Therapy Stigma</span></div>
   </div>
   <div class="sec">Today's Affirmation</div>
-  <div class="wcard" style="background:var(--go-lt);border-color:var(--go-mid);margin-bottom:6px">
-    <div style="font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--go);margin-bottom:7px">Daily Wisdom</div>
-    <div id="home-aff" style="font-family:'Fraunces',serif;font-size:15px;font-style:italic;color:var(--br);line-height:1.7;font-weight:600"></div>
+  <div class="wcard aff-card" style="margin-bottom:6px">
+    <div class="aff-card-label">Daily Wisdom</div>
+    <div id="home-aff" class="aff-card-copy"></div>
   </div>
 </div>
 </div>

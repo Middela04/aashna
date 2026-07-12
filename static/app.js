@@ -9,7 +9,7 @@ async function loadScreenPages(){
   if(!container) return;
   for(const id of screenIds){
     try {
-      const res = await fetch('pages/' + id + '.html?v=20260709-09');
+      const res = await fetch('pages/' + id + '.html?v=20260710-10');
       if(!res.ok){ console.error('Failed to load', id, res.status); continue; }
       const html = await res.text();
       const wrapper = document.createElement('div');
@@ -22,6 +22,17 @@ async function loadScreenPages(){
 // ══════════════════════════════════════
 // STATE
 // ══════════════════════════════════════
+const DEFAULT_THEME='mhisa';
+const THEMES={
+  'jaipur-morning':{label:'Jaipur Morning',note:'Warm sunrise sandstone',swatches:['#E88344','#F9DEC4','#2F7B69']},
+  'kerala-monsoon':{label:'Kerala Monsoon',note:'Rain blues and backwater greens',swatches:['#6E8F95','#2F675A','#8B6B4C']},
+  'lotus-sand':{label:'Lotus & Sand',note:'Soft pink and blush',swatches:['#D66F7E','#F9E4DF','#7B3F60']},
+  'himalayan-sky':{label:'Himalayan Sky',note:'Cool blues and peaks',swatches:['#5D8FCD','#D8E8FB','#27496D']},
+  'festival':{label:'Festival',note:'Violet nights and glow',swatches:['#8B3C8D','#F2B35A','#187D84']},
+  'mhisa':{label:'MHISA',note:'Forest green, white, and blush',swatches:['#174A27','#FFFDF8','#F08E95']},
+};
+const AVATAR_OPTIONS=['🏔️','🪁','🌿','✨','☀️','🌙','☕','🧠'];
+
 const S = {
   name:'',email:'',xp:0,sessionXp:0,streak:0,totalLessons:0,level:1,avi:'🌸',
   authenticated:false,
@@ -45,7 +56,7 @@ const S = {
   // senses
   snsStep:0,snsDone:false,
   // settings
-  settings:{notif:false},
+  settings:{notif:false,theme:DEFAULT_THEME},
   toolkit:{phrase:'',person:'',phrases:[],people:[]},
   appConfig:{googleEnabled:false,googleClientId:''},
   checkins:[],checkinDraft:{mood:'Okay',support:'calm'},
@@ -55,6 +66,45 @@ const S = {
   initialised:false,
 };
 const KIT_EDIT={phrase:-1,person:-1};
+
+function normalizeSettings(raw){
+  const settings=raw && typeof raw==='object' ? raw : {};
+  const storedTheme=localStorage.getItem('khushii_theme') || DEFAULT_THEME;
+  return {
+    notif:!!settings.notif,
+    theme:THEMES[settings.theme] ? settings.theme : storedTheme
+  };
+}
+
+function applyTheme(themeKey){
+  const key=THEMES[themeKey] ? themeKey : DEFAULT_THEME;
+  S.settings.theme=key;
+  document.body.dataset.theme=key;
+  localStorage.setItem('khushii_theme',key);
+  document.querySelectorAll('.theme-option').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.theme===key);
+  });
+  updateHUD();
+}
+
+function setTheme(themeKey){
+  if(!THEMES[themeKey] || S.settings.theme===themeKey)return;
+  applyTheme(themeKey);
+  saveProfileToServer();
+  toast('Theme: '+THEMES[themeKey].label);
+}
+
+function renderThemePicker(){
+  const grid=document.getElementById('theme-grid');
+  if(!grid)return;
+  grid.innerHTML=Object.entries(THEMES).map(([key,theme])=>
+    `<button class="theme-option${S.settings.theme===key?' active':''}" data-theme="${key}" onclick="setTheme('${key}')">
+      <div class="theme-swatch">${theme.swatches.map(color=>`<span style="background:${color}"></span>`).join('')}</div>
+      <span class="theme-name">${theme.label}</span>
+      <span class="theme-note">${theme.note}</span>
+    </button>`
+  ).join('');
+}
 
 function escapeHtml(str=''){
   return String(str)
@@ -145,7 +195,7 @@ const AFF_CATS = ['Identity','Boundaries','Family','Academic','Grief','Self-Comp
 // DATA — SCENARIOS (all 10 unique)
 // ══════════════════════════════════════
 const SC = {
-  s_b3:{mod:'bounds',lbl:'Lesson 3 · At Family Gatherings',spNm:'Your aunt',spRl:'at a Diwali gathering',spAv:'👩🏽‍🦱',
+  s_b3:{mod:'bounds',lbl:'Lesson 3 · At Family Gatherings',spNm:'Your aunt',spRl:'at a festival gathering',spAv:'👩🏽‍🦱',
     pr:'"Beta, when are you getting married? You\'re not getting any younger! All your cousins are already settled — what are you waiting for?"',
     rs:[
       {em:'😅',tx:'Laugh awkwardly, say "haha yeah…" and change the subject.',type:'mid',xp:10,tt:'You deflected — and that\'s okay',ex:'Deflecting can be the right call in a crowded room. Over time, though, consistently brushing these questions aside can leave you feeling unseen. Your timeline is yours to own.'},
@@ -376,9 +426,7 @@ const LC = {
   },
   academic_l1:{type:'quiz',title:'Pressure Is Not Motivation',emoji:'📚',xp:20,
     concept:`Academic pressure can look like motivation from the outside: high standards, packed schedules, constant striving. But pressure and motivation are not the same. Motivation moves you toward something meaningful. Pressure often moves you away from shame, disappointment, or fear.
-
 For many South Asian students, school carries more than personal ambition. It can feel tied to immigration sacrifice, family reputation, financial stability, and the hope of making everyone proud. That weight is real. It also means your nervous system may treat every exam like a referendum on your worth.
-
 A healthier academic relationship starts by separating performance from identity. You can care deeply about your future without making every grade a verdict on who you are.`,
     insight:'You are a person who is learning, not a transcript with a pulse.',
     qs:[
@@ -388,9 +436,7 @@ A healthier academic relationship starts by separating performance from identity
   },
   academic_l6:{type:'reflection',title:'Your Definition of Success',emoji:'🧭',xp:25,
     concept:`Many South Asian families inherit a narrow map of success because safety mattered. Stable careers, prestige, and high achievement were not random values; they often came from real histories of scarcity, migration, racism, and sacrifice.
-
 You can honor why that map existed without letting it be the only map you use. Your definition of success might include stability and ambition. It might also include rest, relationships, creativity, service, health, faith, joy, or freedom.
-
 The goal is not to reject your family. The goal is to build a life that can actually hold you.`,
     insight:'A successful life that destroys you is not the only kind of success available.',
     reflectQ:'What did your family teach you success means? Which parts do you want to keep, and which parts do you want to rewrite?',
@@ -631,16 +677,23 @@ const NAV_IDS = {
 };
 const NAV_SCREENS = new Set(['screen-home','screen-courses','screen-activities','screen-resources','screen-profile']);
 const CURRENT_MOD = {key:null};
+const NAV_HISTORY = [];
+let CURRENT_SCREEN = null;
 
-function go(id){
+function go(id, opts={}){
+  const {skipHistory=false} = opts;
+  if(!skipHistory && CURRENT_SCREEN && CURRENT_SCREEN!==id){
+    NAV_HISTORY.push(CURRENT_SCREEN);
+  }
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById(id);
   if(!el)return;
+  CURRENT_SCREEN=id;
   el.classList.add('active'); el.scrollTop=0;
   const show=id!=='screen-landing' && id!=='screen-auth';
-  const hideNav=!show||['screen-breathbox','screen-breath478','screen-prog-relax','screen-bodyscan','screen-senses','screen-affirmations','screen-journal','screen-boundary-builder','screen-toolkit','screen-therapy-stigma','screen-textline','screen-privacy','screen-terms','screen-support'].includes(id);
   document.getElementById('status')?.classList.toggle('hidden',!show);
-  document.getElementById('nav').classList.toggle('hidden',hideNav);
+  document.getElementById('nav').classList.toggle('hidden',!show);
+  document.getElementById('status-homeback')?.classList.toggle('hidden',!show||NAV_HISTORY.length===0);
   document.querySelectorAll('.nv').forEach(n=>n.classList.remove('active'));
   const nv=document.getElementById(NAV_IDS[id]||'');
   if(nv)nv.classList.add('active');
@@ -654,6 +707,19 @@ function go(id){
   if(id==='screen-textline')initChat();
   if(id==='screen-activities'){const el=document.getElementById('act-aff');if(el)el.textContent=AFFS[S.affIdx].t;}
   updateHUD();
+}
+
+function goBack(){
+  while(NAV_HISTORY.length){
+    const prev = NAV_HISTORY.pop();
+    if(prev && prev!==CURRENT_SCREEN){
+      go(prev,{skipHistory:true});
+      return;
+    }
+  }
+  if(CURRENT_SCREEN && CURRENT_SCREEN!=='screen-home'){
+    go('screen-home',{skipHistory:true});
+  }
 }
 
 function goMod(key){
@@ -696,13 +762,13 @@ async function loadProfileFromServer(){
     S.affCat = data.affCat || S.affCat;
     S.affLoved = new Set(Array.isArray(data.affLoved) ? data.affLoved : []);
     S.activitiesDone = new Set(Array.isArray(data.activitiesDone) ? data.activitiesDone : []);
-    S.settings = data.settings || S.settings;
+    S.settings = normalizeSettings(data.settings);
     S.toolkit = normalizeToolkit(data.toolkit);
     S.checkins = Array.isArray(data.checkins) ? data.checkins : S.checkins;
     S.modProgress = data.modProgress || S.modProgress;
     S.initialised = data.initialised ?? false;
 
-    document.getElementById('home-gr').textContent = 'Namaste, '+S.name+' ✨';
+    document.getElementById('home-gr').textContent = 'Hey, '+S.name+' ✨';
     document.getElementById('home-aff').textContent = AFFS[S.affIdx].t;
     document.getElementById('act-aff').textContent = AFFS[S.affIdx].t;
     const nameEl = document.getElementById('landing-name');
@@ -711,6 +777,8 @@ async function loadProfileFromServer(){
     if(authEmailEl) authEmailEl.value = S.email;
     const authNameEl = document.getElementById('auth-name');
     if(authNameEl && !authNameEl.value) authNameEl.value = S.name;
+    renderThemePicker();
+    applyTheme(S.settings.theme);
     checkBadges();
     if(S.initialised){
       routeAfterLogin();
@@ -956,7 +1024,7 @@ async function startApp(){
   localStorage.setItem(visitKey,today);
   localStorage.setItem(streakKey,S.streak);
 
-  document.getElementById('home-gr').textContent='Namaste, '+n+' ✨';
+  document.getElementById('home-gr').textContent='Hey, '+n+' ✨';
   document.getElementById('home-aff').textContent=AFFS[S.affIdx].t;
   document.getElementById('act-aff').textContent=AFFS[S.affIdx].t;
   checkBadges();
@@ -989,10 +1057,16 @@ function addXP(amt,isLesson=false){
 }
 
 function updateHUD(){
-  document.getElementById('sxp').textContent='⭐ '+S.xp;
-  document.getElementById('xp-n').textContent=S.xp;
-  document.getElementById('streak-n').textContent=S.streak;
-  document.getElementById('lvl-n').textContent=S.level;
+  const sxp=document.getElementById('sxp');
+  if(sxp){
+    sxp.innerHTML=`<span class="status-xp-icon status-xp-icon-mhisa" aria-hidden="true"></span><span>${S.xp}</span>`;
+  }
+  const xpN=document.getElementById('xp-n');
+  if(xpN)xpN.textContent=S.xp;
+  const streakN=document.getElementById('streak-n');
+  if(streakN)streakN.textContent=S.streak;
+  const lvlN=document.getElementById('lvl-n');
+  if(lvlN)lvlN.textContent=S.level;
 }
 
 function todayKey(){
@@ -1105,7 +1179,9 @@ function filterMods(cat,btn){
 
 function renderStars(pct){
   const f=pct>=100?3:pct>=50?2:pct>0?1:0;
-  return '⭐'.repeat(f)+'<span style="opacity:.22">'+('⭐'.repeat(3-f))+'</span>';
+  const filled=Array.from({length:f},()=>'<span class="mhisa-inline-icon mhisa-inline-icon-xs" aria-hidden="true"></span>').join('');
+  const empty=Array.from({length:3-f},()=>'<span class="mhisa-inline-icon mhisa-inline-icon-xs" style="opacity:.22" aria-hidden="true"></span>').join('');
+  return filled+empty;
 }
 
 function renderModule(k){
@@ -1117,7 +1193,7 @@ function renderModule(k){
   document.getElementById('mhdr-title').textContent=m.title;
   document.getElementById('mhdr-sub').textContent=m.sub;
   document.getElementById('mhdr-pills').innerHTML=
-    `<div class="pill">🎯 ${m.lessons.length} Lessons</div><div class="pill">⭐ ${m.lessons.length*20} XP</div><div class="pill">⏱ ~${m.lessons.length*4} min</div>`;
+    `<div class="pill">🎯 ${m.lessons.length} Lessons</div><div class="pill"><span class="mhisa-inline-icon mhisa-inline-icon-sm" aria-hidden="true"></span> ${m.lessons.length*20} XP</div><div class="pill">⏱ ~${m.lessons.length*4} min</div>`;
   const path=document.getElementById('lpath');
   path.innerHTML='';
   m.lessons.forEach((l,i)=>{
@@ -1225,9 +1301,17 @@ function pickQ(chosen,correct,step){
       chosenEl.classList.add('q-wrong');
       chosenEl.disabled=true;
     }
+    for(let i=0;i<q.opts.length;i++){
+      const el=document.getElementById('qo'+i);
+      if(!el || i===chosen)continue;
+      el.disabled=true;
+      if(i===correct)el.classList.add('q-correct');
+      else el.classList.add('q-dim');
+    }
     if(fb){
-      fb.innerHTML='';
-      fb.className='q-feedback';
+      fb.innerHTML=`<div>Not quite. The better answer is: <strong>${q.opts[correct]}</strong></div><div style="margin-top:8px">${q.fb}</div>
+        <button class="q-next" onclick="${isLast?`completeLessonDirect('${currentLessonState.modKey}',${currentLessonState.lessonIdx})`:`showQ(${step})`}">${isLast?'Continue →':'Try the next question →'}</button>`;
+      fb.className='q-feedback show q-fb-bad';
     }
     return;
   }
@@ -1937,6 +2021,7 @@ function checkBadges(){
 }
 
 function renderProfile(){
+  renderAvatarPicker();
   document.getElementById('pname').textContent=S.name;
   document.getElementById('plvl').textContent='Level '+S.level+' · '+levelTitle(S.level);
   document.getElementById('avi').textContent=S.avi;
@@ -1959,11 +2044,25 @@ function renderProfile(){
   }).join('');
 }
 
+function renderAvatarPicker(){
+  const picker=document.getElementById('avi-picker');
+  if(!picker)return;
+  picker.innerHTML=AVATAR_OPTIONS.map(emoji=>
+    `<div class="avi-o${S.avi===emoji?' active':''}" onclick="setAvi('${emoji}')">${emoji}</div>`
+  ).join('');
+}
+
 function toggleAvi(){
   const p=document.getElementById('avi-picker');
   p.classList.toggle('open');
 }
-function setAvi(e){S.avi=e;document.getElementById('avi').textContent=e;document.getElementById('avi-picker').classList.remove('open');saveProfileToServer();}
+function setAvi(e){
+  S.avi=e;
+  document.getElementById('avi').textContent=e;
+  renderAvatarPicker();
+  document.getElementById('avi-picker').classList.remove('open');
+  saveProfileToServer();
+}
 
 function openProvSheet(){
   checkBadges();
@@ -2033,6 +2132,8 @@ function openSettings(){
   document.getElementById('session-xp-tag').textContent='+'+S.sessionXp+' XP';
   const ut=document.getElementById('unlock-toggle');
   ut.classList.toggle('on',S.unlockAll);
+  renderThemePicker();
+  applyTheme(S.settings.theme);
 }
 function closeSettings(){document.getElementById('settings-overlay').classList.remove('open');}
 function closeSettingsIfBg(e){if(e.target===document.getElementById('settings-overlay'))closeSettings();}
@@ -2074,7 +2175,11 @@ function toast(msg){
 // ══════════════════════════════════════
 // ── INIT COMPLETE ──
 window.addEventListener('load', async ()=>{
+  S.settings=normalizeSettings(S.settings);
+  applyTheme(S.settings.theme);
   await loadScreenPages();
+  renderThemePicker();
+  applyTheme(S.settings.theme);
   await loadAppConfig();
   initGoogleAuth();
   loadProfileFromServer();
